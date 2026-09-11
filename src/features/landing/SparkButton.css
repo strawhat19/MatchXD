@@ -1,0 +1,14 @@
+.mx-pill .mx-spark-label,.mx-pill .mx-spark-label span{font:inherit;line-height:inherit}
+.mx-spark-label{display:inline-flex;align-items:baseline;gap:.32em;white-space:nowrap}
+.mx-spark-slot{display:inline-grid;text-align:left;vertical-align:baseline}
+.mx-spark-sizer,.mx-spark-word{grid-area:1/1}
+.mx-spark-sizer{visibility:hidden;pointer-events:none;padding-right:.3em}
+.mx-spark-word{justify-self:start}
+.mx-spark-letter{animation:mx-spark-type-in .18s ease-out both}
+.mx-spark-caret{display:inline-block;width:1px;height:.92em;margin-left:.18em;vertical-align:-.08em;background:currentColor;box-shadow:0 0 4px currentColor;animation:mx-spark-caret-blink 1s step-end infinite}
+.mx-spark-button:is([data-typing-phase="type"],[data-typing-phase="erase"]) .mx-spark-caret{animation:none}
+.mx-spark-button[data-typing-active="false"] .mx-spark-caret{animation:none;opacity:0}
+.mx-spark-button[data-typing-active="false"] .mx-spark-letter{animation:none}
+@keyframes mx-spark-type-in{from{opacity:.3;filter:blur(1.5px)}to{opacity:1;filter:blur(0)}}
+@keyframes mx-spark-caret-blink{0%,100%{opacity:1}50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.mx-spark-letter,.mx-spark-caret{animation:none!important}.mx-spark-caret{display:none}}

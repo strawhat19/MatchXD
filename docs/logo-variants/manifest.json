@@ -1,0 +1,72 @@
+[
+  {
+    "file": "01-connected-wordmark-light.svg",
+    "title": "MatchXD \u2014 Connected Wordmark (light)",
+    "width": 955.532,
+    "height": 202,
+    "outlined": true
+  },
+  {
+    "file": "04-forward-wordmark-light.svg",
+    "title": "MatchXD \u2014 Forward Signature (light)",
+    "width": 746.038,
+    "height": 202,
+    "outlined": true
+  },
+  {
+    "file": "05-xoxo-signature-light.svg",
+    "title": "MatchXD \u2014 XOXO Signature (light)",
+    "width": 955.532,
+    "height": 286,
+    "outlined": true
+  },
+  {
+    "file": "01-connected-wordmark-dark.svg",
+    "title": "MatchXD \u2014 Connected Wordmark (dark)",
+    "width": 955.532,
+    "height": 202,
+    "outlined": true
+  },
+  {
+    "file": "04-forward-wordmark-dark.svg",
+    "title": "MatchXD \u2014 Forward Signature (dark)",
+    "width": 746.038,
+    "height": 202,
+    "outlined": true
+  },
+  {
+    "file": "05-xoxo-signature-dark.svg",
+    "title": "MatchXD \u2014 XOXO Signature (dark)",
+    "width": 955.532,
+    "height": 286,
+    "outlined": true
+  },
+  {
+    "file": "02-ink-mark.svg",
+    "title": "MatchXD \u2014 Ink And Blush Mark",
+    "width": 106,
+    "height": 110,
+    "outlined": true
+  },
+  {
+    "file": "02-ink-icon.svg",
+    "title": "MatchXD \u2014 Ink And Blush Icon",
+    "width": 120,
+    "height": 120,
+    "outlined": true
+  },
+  {
+    "file": "03-circle-icon.svg",
+    "title": "MatchXD \u2014 Circular App Icon",
+    "width": 120,
+    "height": 120,
+    "outlined": true
+  },
+  {
+    "file": "03-circle-mark.svg",
+    "title": "MatchXD \u2014 Circular Outline Seal",
+    "width": 120,
+    "height": 120,
+    "outlined": true
+  }
+]

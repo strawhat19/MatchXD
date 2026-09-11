@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120.000 120.000" role="img" aria-labelledby="title description">
+  <title id="title">MatchXD — Circular Outline Seal</title>
+  <desc id="description">Optional lightweight circular seal using the coral and blush Connected X. Transparent background, suitable as a secondary stamp.</desc>
+  <metadata>MatchXD logo study. Original Connected X geometry retained. Lettering is editable vector paths; font licenses accompany the source kit.</metadata>
+  <circle id="circle-outline" cx="60" cy="60" r="58.5" fill="none" stroke="#FA3D60" stroke-width="3"/><g id="connected-x" transform="translate(26.000 22.000) scale(0.6600)">
+      <circle id="connected-x-front-head" cx="27" cy="12" r="10" fill="#FF9DAA"/>
+      <circle id="connected-x-back-head" cx="77" cy="12" r="10" fill="#FA3D60"/>
+      <path id="connected-x-back-person" d="M10 104 L60 42 Q72 24 94 33 L42 96 Q36 104 24 104Z" fill="#FA3D60"/>
+      <path id="connected-x-front-person" d="M12 33 Q33 24 46 42 L96 104H82 Q70 104 63 95Z" fill="#FF9DAA"/>
+    </g>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="106" height="110" viewBox="0 0 106.000 110.000" role="img" aria-labelledby="title description">
+  <title id="title">MatchXD — Ink And Blush Mark</title>
+  <desc id="description">Original adaptive Connected X geometry. Only the original white head and white crossing person are changed to pure black; blush remains #FFD7DB. Transparent background.</desc>
+  <metadata>MatchXD logo study. Original Connected X geometry retained. Lettering is editable vector paths; font licenses accompany the source kit.</metadata>
+  <g id="connected-x" transform="translate(0.000 2.000) scale(1.0000)">
+      <circle id="connected-x-front-head" cx="27" cy="12" r="10" fill="#FFD7DB"/>
+      <circle id="connected-x-back-head" cx="77" cy="12" r="10" fill="#000000"/>
+      <path id="connected-x-back-person" d="M10 104 L60 42 Q72 24 94 33 L42 96 Q36 104 24 104Z" fill="#000000"/>
+      <path id="connected-x-front-person" d="M12 33 Q33 24 46 42 L96 104H82 Q70 104 63 95Z" fill="#FFD7DB"/>
+    </g>
+</svg>

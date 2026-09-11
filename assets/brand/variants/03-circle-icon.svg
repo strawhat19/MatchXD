@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120.000 120.000" role="img" aria-labelledby="title description">
+  <title id="title">MatchXD — Circular App Icon</title>
+  <desc id="description">A true circular application of the original coral gradient icon, preserving the white and blush Connected X geometry and placement. Transparent outside the circle.</desc>
+  <metadata>MatchXD logo study. Original Connected X geometry retained. Lettering is editable vector paths; font licenses accompany the source kit.</metadata>
+  <defs><linearGradient id="coral-gradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF686C"/><stop offset="1" stop-color="#F33765"/></linearGradient></defs><circle id="icon-background" cx="60" cy="60" r="60" fill="url(#coral-gradient)"/><g id="connected-x" transform="translate(26.000 22.000) scale(0.6600)">
+      <circle id="connected-x-front-head" cx="27" cy="12" r="10" fill="#FFD7DB"/>
+      <circle id="connected-x-back-head" cx="77" cy="12" r="10" fill="#FFFFFF"/>
+      <path id="connected-x-back-person" d="M10 104 L60 42 Q72 24 94 33 L42 96 Q36 104 24 104Z" fill="#FFFFFF"/>
+      <path id="connected-x-front-person" d="M12 33 Q33 24 46 42 L96 104H82 Q70 104 63 95Z" fill="#FFD7DB"/>
+    </g>
+</svg>

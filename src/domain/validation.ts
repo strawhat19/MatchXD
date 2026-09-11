@@ -1,0 +1,81 @@
+import { ageOf } from './matching';
+import { OPTIONS } from '../config/app';
+import { AppState, Attribute, Preferences, Profile } from './types';
+
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === `object` && value !== null && !Array.isArray(value);
+const strings = (value: unknown): value is string[] => Array.isArray(value) && value.every(item => typeof item === `string`);
+const integer = (value: unknown) => Number.isSafeInteger(value) && Number(value) >= 0;
+export const validUri = (value: string) => /^(https?:\/\/|file:\/\/|content:\/\/|blob:|data:(image|audio|video)\/|demo:)/i.test(value);
+export const validPublicLink = (url: string) => {
+  try { const parsed = new URL(url); return parsed.protocol === `https:` && !!parsed.hostname && !parsed.username && !parsed.password; } catch { return false; }
+};
+export const profileError = (profile: Profile, now = new Date()) => {
+  if (!profile.name.trim() || profile.name.length > 60) return `Enter A Name Up To 60 Characters`;
+  const age = ageOf(profile.dob, now);
+  if (!Number.isFinite(age) || age < 18 || age > 120) return `Enter A Valid Date Of Birth — You Must Be 18+`;
+  if (!profile.city.trim() || profile.city.length > 100) return `Enter Your City`;
+  if (profile.bio.length > 1000 || profile.job.length > 100) return `Keep Your Bio Under 1,000 Characters And Job Under 100`;
+  if (!profile.photos.length || profile.photos.length > 6 || profile.photos.some(photo => !photo || (![`sofia`, `maya`, `elena`, `marcus`, `ethan`, `noah`].includes(photo) && !validUri(photo)))) return `Add 1–6 Valid Profile Photos`;
+  if (profile.interests.length > 12 || profile.interests.some(interest => !interest.trim() || interest.length > 60)) return `Choose Up To 12 Interests`;
+  if (!Number.isFinite(profile.distance) || profile.distance < 0 || profile.distance > 25000) return `Enter A Valid Distance`;
+  if (profile.links.length > 5 || profile.links.some(link => !link.label.trim() || link.label.length > 80 || !validPublicLink(link.url))) return `Use Up To Five Named HTTPS Public Links`;
+  if ((profile.voiceUri && !validUri(profile.voiceUri)) || (profile.videoUri && !validUri(profile.videoUri))) return `Use A Valid Media File Or URL`;
+  return null;
+};
+export const preferencesError = (preferences: Preferences) => {
+  if (!Number.isInteger(preferences.ageMin) || !Number.isInteger(preferences.ageMax) || preferences.ageMin < 18 || preferences.ageMax > 120 || preferences.ageMax < preferences.ageMin) return `Choose An Age Range Between 18 And 120`;
+  if (!Number.isFinite(preferences.distance) || preferences.distance < 1 || preferences.distance > 25000) return `Choose A Valid Maximum Distance`;
+  if (!strings(preferences.hiddenNames) || preferences.hiddenNames.length > 100) return `Use Up To 100 Hidden Names`;
+  if (!isRecord(preferences.attributes) || (Object.keys(OPTIONS) as Attribute[]).some(key => !strings(preferences.attributes[key]) || preferences.attributes[key].some(value => ![...OPTIONS[key], `Not Provided`].includes(value)))) return `Choose Valid Preference Options`;
+  return null;
+};
+export const isProfile = (value: unknown): value is Profile => {
+  if (!isRecord(value)) return false;
+  if ([`id`, `name`, `dob`, `city`, `bio`, `job`].some(key => typeof value[key] !== `string`)) return false;
+  if (!integer(value.number) || Number(value.number) < 1 || !Number.isFinite(value.distance)) return false;
+  if ([`photos`, `interests`, `likedIds`, `blockedIds`].some(key => !strings(value[key]))) return false;
+  if ([`directoryOptIn`, `discoverable`, `incognito`].some(key => typeof value[key] !== `boolean`)) return false;
+  if (!isRecord(value.attributes) || Object.entries(value.attributes).some(([key, entry]) => !(key in OPTIONS) || typeof entry !== `string`)) return false;
+  if (!Array.isArray(value.links) || value.links.some(link => !isRecord(link) || typeof link.label !== `string` || typeof link.url !== `string`)) return false;
+  if ([`voiceUri`, `videoUri`].some(key => value[key] !== undefined && typeof value[key] !== `string`)) return false;
+  return profileError(value as Profile) === null;
+};
+const validDate = (value: unknown) => typeof value === `string` && Number.isFinite(Date.parse(value));
+export const isAppState = (value: unknown): value is AppState => {
+  if (!isRecord(value) || value.version !== 1 || !isProfile(value.user)) return false;
+  if (!Array.isArray(value.profiles) || !value.profiles.every(isProfile)) return false;
+  const profiles = [value.user, ...value.profiles];
+  if (new Set(profiles.map(profile => profile.id)).size !== profiles.length || new Set(profiles.map(profile => profile.number)).size !== profiles.length) return false;
+  if (!integer(value.nextProfileNumber) || Number(value.nextProfileNumber) <= Math.max(...profiles.map(profile => profile.number))) return false;
+  const ids = new Set(value.profiles.map(profile => profile.id));
+  const selfId = value.user.id;
+  if (value.session !== null && (!isRecord(value.session) || ![`member`, `owner`].includes(String(value.session.role)) || typeof value.session.onboarded !== `boolean`)) return false;
+  const settings = value.settings;
+  if (!isRecord(settings) || ![`light`, `dark`, `system`].includes(String(settings.theme)) || typeof settings.incognito !== `boolean` || typeof settings.discoverable !== `boolean`) return false;
+  if (!isRecord(settings.notifications) || [`push`, `email`, `sms`].some(key => typeof (settings.notifications as Record<string, unknown>)[key] !== `boolean`)) return false;
+  if (!isRecord(value.preferences) || preferencesError(value.preferences as Preferences)) return false;
+  const wallet = value.wallet;
+  if (!isRecord(wallet) || ![`free`, `m`, `mx`, `mxd`].includes(String(wallet.plan))) return false;
+  if ([`daily`, `purchased`, `grantTier`, `adCount`].some(key => !integer(wallet[key]))) return false;
+  if (typeof wallet.grantDate !== `string` || !/^\d{4}-\d{2}-\d{2}$/.test(wallet.grantDate)) return false;
+  if (wallet.cancelAt !== null && !validDate(wallet.cancelAt)) return false;
+  if (!strings(wallet.operations) || new Set(wallet.operations).size !== wallet.operations.length) return false;
+  if (!Array.isArray(wallet.ledger) || wallet.ledger.some(item => !isRecord(item) || typeof item.id !== `string` || typeof item.label !== `string` || !Number.isSafeInteger(item.amount) || ![`daily`, `purchased`].includes(String(item.bucket)) || !validDate(item.at))) return false;
+  const ledger = wallet.ledger as AppState[`wallet`][`ledger`];
+  if (new Set(ledger.map(entry => entry.id)).size !== ledger.length) return false;
+  if (ledger.filter(entry => entry.bucket === `daily`).reduce((total, entry) => total + entry.amount, 0) !== wallet.daily || ledger.filter(entry => entry.bucket === `purchased`).reduce((total, entry) => total + entry.amount, 0) !== wallet.purchased) return false;
+  const dailyActions = value.dailyActions;
+  if (!isRecord(dailyActions) || [`rewind`, `super`, `firstMessage`].some(key => !integer(dailyActions[key]))) return false;
+  if (typeof dailyActions.date !== `string` || !/^\d{4}-\d{2}-\d{2}$/.test(dailyActions.date) || !validDate(`${dailyActions.date}T00:00:00.000Z`) || new Date(`${dailyActions.date}T00:00:00.000Z`).toISOString().slice(0, 10) !== dailyActions.date) return false;
+  if (!strings(value.contactHistory) || value.contactHistory.some(id => !id || id === selfId) || new Set(value.contactHistory).size !== value.contactHistory.length) return false;
+  const operations = wallet.operations;
+  const contactHistory = value.contactHistory;
+  if (!Array.isArray(value.introductions) || value.introductions.some(introduction => !isRecord(introduction) || typeof introduction.profileId !== `string` || !introduction.profileId || introduction.profileId === selfId || typeof introduction.operationId !== `string` || !operations.includes(introduction.operationId) || !contactHistory.includes(introduction.profileId) || !validDate(introduction.at))) return false;
+  if (new Set(value.introductions.map(introduction => introduction.profileId)).size !== value.introductions.length || new Set(value.introductions.map(introduction => introduction.operationId)).size !== value.introductions.length) return false;
+  if (!strings(value.matches) || !strings(value.blocks) || [...value.matches, ...value.blocks].some(id => !ids.has(id))) return false;
+  if (!Array.isArray(value.swipes) || value.swipes.some(swipe => !isRecord(swipe) || typeof swipe.id !== `string` || !ids.has(String(swipe.profileId)) || ![`pass`, `like`, `super`].includes(String(swipe.kind)) || !validDate(swipe.at))) return false;
+  if (!Array.isArray(value.messages) || value.messages.some(message => !isRecord(message) || typeof message.id !== `string` || !ids.has(String(message.profileId)) || typeof message.text !== `string` || ![`self`, `profile`].includes(String(message.sender)) || !validDate(message.at))) return false;
+  if (!Array.isArray(value.reports) || value.reports.some(report => !isRecord(report) || typeof report.id !== `string` || !ids.has(String(report.profileId)) || typeof report.reason !== `string` || ![`open`, `resolved`].includes(String(report.status)) || !validDate(report.at))) return false;
+  if (!Array.isArray(value.mxoMessages) || value.mxoMessages.some(message => !isRecord(message) || typeof message.id !== `string` || typeof message.text !== `string` || ![`user`, `assistant`].includes(String(message.role)) || !validDate(message.at) || (message.recommendations !== undefined && !strings(message.recommendations)))) return false;
+  return true;
+};

@@ -1,0 +1,10 @@
+.mx-community-stats{position:relative;width:100%;margin-top:64px;color:#17191f}
+.mx-community-stats-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;margin:0;padding:0}
+.mx-community-stat{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:clamp(38px,5vw,72px) 8px;background:#ff526f}
+.mx-community-stat:nth-child(2){background:#ff8097}
+.mx-community-stat:nth-child(3){background:#ffadbd}
+.mx-community-stat:nth-child(4){background:#ffd7df}
+.mx-community-stat dt{display:flex;min-height:24px;align-items:center;justify-content:center;font:500 clamp(9px,1.1vw,14px)/1.5 Poppins_500Medium,Arial,sans-serif;letter-spacing:.04em;white-space:nowrap}
+.mx-community-stat dd{order:-1;max-width:100%;margin:0;font:500 clamp(22px,5.4vw,88px)/1 Poppins_500Medium,Arial,sans-serif;letter-spacing:-.04em}
+.mx-community-stats-preview{position:absolute;bottom:8px;left:0;width:100%;text-align:center;font:9px/1.5 Poppins_400Regular,Arial,sans-serif}
+@media(max-width:699px){.mx-community-stats{margin-top:48px}}
