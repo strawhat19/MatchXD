@@ -36,6 +36,8 @@ The current release is a local preview with fictional adult profiles and saved a
 
 The app uses Expo, React Native, TypeScript, and Expo Router. Shared domain logic handles matching, visibility, action limits, and XO accounting. See [Verification](docs/VERIFICATION.md) for completed checks and their scope.
 
+Expo and Vercel are connected to the GitHub repository. The first Vercel web deployment is pending; follow [Deploy Expo To Web](docs/deploy-expo-app-to-web.md) for the setup and current status. The owner confirmed this preview's personal, noncommercial use for Vercel Hobby.
+
 ## Documentation
 
 | Guide | Contents |

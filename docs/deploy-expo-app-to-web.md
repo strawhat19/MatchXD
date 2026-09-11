@@ -2,7 +2,7 @@
 
 [MatchXD](../README.md) · [Deployment Guide](DEPLOYMENT.md) · [Getting Started](GETTING_STARTED.md)
 
-Updated September 11, 2026. MatchXD can export its Expo web target as a static website while keeping Android and iOS in the same project. Vercel is the preferred web host for this setup. Publishing the current app preserves its local demo accounts, data, and simulated purchases; it does not connect a production dating backend.
+Updated September 11, 2026. MatchXD exports its Expo web target as a static website while keeping Android and iOS in the same project. Its Vercel Hobby project is connected to GitHub; the first deployment is pending. Publishing the current app preserves its local demo accounts, data, and simulated purchases; it does not connect a production dating backend.
 
 ## Current Setup
 
@@ -16,16 +16,19 @@ Updated September 11, 2026. MatchXD can export its Expo web target as a static w
 | Expo configuration | `owner` and `extra.eas.projectId` recorded in [app.config.ts](../app.config.ts) |
 | Expo GitHub connection | `strawhat19/MatchXD` connected; base directory `/` |
 | Web deployment configuration | [vercel.json](../vercel.json) added; local export passed |
-| Vercel GitHub integration | Pending |
+| Vercel Hobby eligibility | Owner confirmed personal, noncommercial use on September 11, 2026 |
+| Vercel project | `matchxd` in `strawhat19s-projects` |
+| Vercel project ID | `prj_TbeZKc8N8i37cLRn0lEta0XbWyQZ` |
+| Vercel GitHub integration | Connected to `strawhat19/MatchXD` |
 | Production web URL | Pending; no successful deployment recorded yet |
 | GitHub About website | Pending a verified production URL |
 | Custom domain / native store releases | Deferred |
 
 ## Free Hosting Eligibility
 
-Vercel Hobby is free, subject to usage limits, and restricted to personal, noncommercial use. Hosting is pending confirmation of whether this MatchXD deployment qualifies as a personal prototype or is part of a commercial project. A prototype with simulated payments does not by itself establish eligibility. No paid plan, trial, add-on, or domain purchase is part of this setup. See [Vercel Hobby](https://vercel.com/docs/plans/hobby).
+The owner confirmed personal, noncommercial use on **September 11, 2026**, so this deployment is proceeding on Vercel Hobby. The plan is free, subject to usage limits, and restricted to personal, noncommercial use. No paid plan, trial, add-on, or domain purchase is part of this setup. See [Vercel Hobby](https://vercel.com/docs/plans/hobby).
 
-If this deployment is commercial, choose a suitable host with an eligible free plan before publishing; do not automatically upgrade Vercel. Provider limits and terms should be checked again when publishing or changing the app's use.
+If the app's use later becomes commercial, review hosting eligibility before that change; do not automatically upgrade to a paid plan. Provider limits and terms should be checked again when changing the app's use.
 
 ## Steps Completed
 
@@ -47,12 +50,13 @@ If this deployment is commercial, choose a suitable host with an eligible free p
 
 5. Added `.vercel/` to [.gitignore](../.gitignore). Exported `dist` files were already ignored. Source and configuration belong in Git; local project settings and generated output do not.
 6. Ran the TypeScript check and a production web export using the installed dependencies and bundled Node 24 runtime. Both completed successfully. The local development server was not restarted.
+7. After the owner confirmed noncommercial use, ran `vercel link --yes --project matchxd --scope strawhat19s-projects`. Vercel linked the local directory and automatically connected `https://github.com/strawhat19/MatchXD`. `vercel project inspect` confirmed the project, Node `24.x`, repository root `./`, framework **Other**, install command `npm ci`, build command `npm run export:web`, and output directory `dist`. The first remote build has not yet been verified.
 
 The rewrite lets direct links such as `/sign-in` load the SPA entry. Vercel serves matching filesystem assets before applying rewrites, so JavaScript, CSS, images, and fonts retain their own responses. See [Vercel's rewrite configuration](https://vercel.com/docs/project-configuration/vercel-json#rewrites).
 
 ## Build Settings And Local Reproduction
 
-Use Node **24.3 or newer within Node 24** to match the tested major version and [package.json](../package.json). Select Node `24.x` in the eventual Vercel project. From a fresh checkout, run:
+Use Node **24.3 or newer within Node 24** to match the tested major version and [package.json](../package.json). The Vercel project uses Node `24.x`. From a fresh checkout, run:
 
 ```powershell
 npm ci
@@ -64,18 +68,16 @@ npm run export:web
 
 The completed local export contained **75 files, 50,015,744 bytes (47.70 MiB)**. Its top level contains `index.html`, `favicon.ico`, `metadata.json`, `assets`, and `_expo`. The JavaScript entry is approximately **2.60 MB uncompressed**; profile images account for most of the total output. All script, stylesheet, and favicon references in the exported HTML resolve to generated files.
 
-These checks establish that the web target exports locally. Remote build success, live routes, browser behavior, and automatic deployment from Git remain to be verified after hosting is connected. No Android or iOS build was run.
+These checks establish that the web target exports locally. Remote build success, live routes, browser behavior, and automatic deployment from Git remain to be verified. No Android or iOS build was run.
 
-## Finish The Vercel Connection
+## Finish The First Deployment
 
 These steps are pending, not a record of completed deployment:
 
-1. Confirm free-plan eligibility, then import `strawhat19/MatchXD` into the intended Vercel account. Grant its GitHub integration access to this repository if needed.
-2. Request project name `matchxd`. Use the repository root, framework preset **Other**, Node **24.x**, and the install/build/output settings in `vercel.json`.
-3. Confirm the production branch is **main**. Commit and push the prepared application and deployment configuration to GitHub, then let Vercel build the imported repository.
-4. Wait for the deployment to become **Ready**. Verify the homepage, direct navigation and refresh on `/sign-in`, and real JavaScript/CSS/image responses. Confirm that the deployment corresponds to the intended Git commit.
-5. Prefer the shortest available project production alias, ideally `matchxd.vercel.app`. That name has not been reserved or confirmed. Record the actual stable production URL above; do not use a commit-specific preview address as the primary link.
-6. Open the [GitHub repository](https://github.com/strawhat19/MatchXD), use the gear next to **About**, and save the verified production URL in **Website**. Leave the custom domain unconfigured.
+1. Confirm the production branch is **main**. Commit and push the prepared application and deployment configuration to GitHub, then let the connected Vercel project build it.
+2. Wait for the deployment to become **Ready**. Verify the homepage, direct navigation and refresh on `/sign-in`, and real JavaScript/CSS/image responses. Confirm that the deployment corresponds to the intended Git commit.
+3. Prefer the shortest available project production alias, ideally `matchxd.vercel.app`. That name has not been reserved or confirmed. Record the actual stable production URL above; do not use a commit-specific preview address as the primary link.
+4. Open the [GitHub repository](https://github.com/strawhat19/MatchXD), use the gear next to **About**, and save the verified production URL in **Website**. Leave the custom domain unconfigured.
 
 Vercel's [GitHub integration](https://vercel.com/docs/git/vercel-for-github) creates deployments from GitHub pushes. Once `main` is configured as production, pushing or merging changes into that branch triggers the website update. An unpushed local commit cannot trigger it. Other branches can receive preview deployments. A separate GitHub Actions deployment workflow is unnecessary for this integration.
 
