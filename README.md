@@ -6,7 +6,7 @@ MatchXD is a dating app for adults, designed around personal expression, mutual 
 
 ![MatchXD app preview](./public/assets/versions/MatchXD_v0000_0.gif)
 
-[Getting Started](docs/GETTING_STARTED.md) · [Demo Guide](docs/DEMO_GUIDE.md) · [Development](docs/DEVELOPMENT.md) · [Deployment](docs/DEPLOYMENT.md)
+[Live Web Preview](https://matchxd.vercel.app) · [Getting Started](docs/GETTING_STARTED.md) · [Demo Guide](docs/DEMO_GUIDE.md) · [Development](docs/DEVELOPMENT.md) · [Deployment](docs/DEPLOYMENT.md)
 
 ## The Experience
 
@@ -32,11 +32,11 @@ See the [XO Economy](docs/XO_ECONOMY.md) for plan access, action costs, packs, d
 
 ## Project Status
 
-The current release is a local preview with fictional adult profiles and saved activity on each device. Authentication, chat replies, AI recommendations, purchases, ads, and moderation use demo implementations. Live accounts, payments, a connected dating network, and store distribution require the integrations described in [Deployment](docs/DEPLOYMENT.md).
+The current release is a [hosted web preview](https://matchxd.vercel.app) with fictional adult profiles and activity saved locally on each device. Authentication, chat replies, AI recommendations, purchases, ads, and moderation use demo implementations. Live accounts, payments, a connected dating network, and store distribution require the integrations described in [Deployment](docs/DEPLOYMENT.md).
 
 The app uses Expo, React Native, TypeScript, and Expo Router. Shared domain logic handles matching, visibility, action limits, and XO accounting. See [Verification](docs/VERIFICATION.md) for completed checks and their scope.
 
-Expo and Vercel are connected to the GitHub repository. The first Vercel web deployment is pending; follow [Deploy Expo To Web](docs/deploy-expo-app-to-web.md) for the setup and current status. The owner confirmed this preview's personal, noncommercial use for Vercel Hobby.
+Expo and Vercel are connected to the GitHub repository. Pushes and merges to `main` deploy the web preview automatically. [Deploy Expo To Web](docs/deploy-expo-app-to-web.md) records the setup, verified deployment, and update process.
 
 ## Documentation
 

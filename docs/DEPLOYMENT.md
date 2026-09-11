@@ -1,6 +1,8 @@
 # MatchXD Deployment Guide
 
-MatchXD currently runs as a local prototype. The project is linked to [@strawhat19/matchxd on Expo](https://expo.dev/accounts/strawhat19/projects/matchxd) and its GitHub repository. Vercel project `matchxd` is also connected to GitHub under `strawhat19s-projects`; its first web deployment is pending. The owner confirmed personal, noncommercial use for Vercel Hobby on September 11, 2026. See [Deploy Expo To Web](deploy-expo-app-to-web.md) for completed steps, hosting status, and automatic deployment setup. EAS build profiles, production authentication, a backend, and live payments are not configured. Exporting or packaging the app preserves its local-demo behaviors; it does not create a connected dating service.
+MatchXD's web preview is live at **[matchxd.vercel.app](https://matchxd.vercel.app)**. Its [Vercel project](https://vercel.com/strawhat19s-projects/matchxd) automatically deploys GitHub pushes and merges to `main`. The app is also linked to [@strawhat19/matchxd on Expo](https://expo.dev/accounts/strawhat19/projects/matchxd), with that Expo project connected to the same GitHub repository. The owner confirmed personal, noncommercial use for Vercel Hobby on September 11, 2026; no money was spent and the custom domain remains unconfigured.
+
+See [Deploy Expo To Web](deploy-expo-app-to-web.md) for the exact setup, first verified Git deployment, update process, and rollback guidance. EAS build profiles, production authentication, a backend, and live payments are not configured. The hosted app retains its local demo behavior; it is not yet a connected dating service.
 
 For local setup, see [Getting Started](GETTING_STARTED.md). See [Development](DEVELOPMENT.md) for project configuration and checks, [Verification](VERIFICATION.md) for recorded results and limitations, and the [Implementation Plan](IMPLEMENTATION_PLAN.md) for the proposed connected-service architecture.
 
@@ -15,7 +17,7 @@ npx serve -s dist
 
 The export script writes the web bundle to `dist`. The `serve` command may offer to download the preview utility. It previews the export locally; neither command publishes the site or connects a backend.
 
-The web configuration in [app.config.ts](../app.config.ts) uses `output: single`. [vercel.json](../vercel.json) defines the install/build commands, `dist` output, and client-route fallback. See [Deploy Expo To Web](deploy-expo-app-to-web.md) for hosting eligibility, connection status, and verification before relying on a public deployment.
+The web configuration in [app.config.ts](../app.config.ts) uses `output: single`. [vercel.json](../vercel.json) defines the install/build commands, `dist` output, and client-route fallback used by Vercel. See [Deploy Expo To Web](deploy-expo-app-to-web.md) for the hosting policy, connection details, and completed web checks.
 
 ## Standalone Mobile Builds
 
@@ -29,7 +31,7 @@ Expo Go remains a development host, not a standalone MatchXD installation. See [
 
 ## Connected Beta
 
-Complete these integrations before a public release:
+Complete these integrations before opening a connected dating service:
 
 - Connect the chosen backend; Supabase/PostgreSQL is proposed in the [Implementation Plan](IMPLEMENTATION_PLAN.md). Implement real authentication callbacks, media storage, mutual matching, realtime messaging, moderation, account/data deletion, and server authorization. Assign owner access to a verified account on the server; the local demo role cannot grant production permissions.
 - Add server endpoints for AI and payments, store product mappings, receipt/webhook verification, and restore, refund, and cancellation handling. The current local balances and simulated purchases do not secure money or entitlements.
