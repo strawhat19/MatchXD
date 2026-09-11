@@ -4,7 +4,7 @@
 
 MatchXD is a dating app for adults, designed around personal expression, mutual connections, and premium features at accessible prices. Built for iOS, Android, and the web, it pairs a mobile-first experience with a polished desktop layout.
 
-![MatchXD app preview](./public/assets/versions/MatchXD_v0000_0.gif)
+![Match XD](./public/assets/versions/MatchXD_v0000_0.gif)
 
 [Live Web Preview](https://matchxd.vercel.app) · [Getting Started](docs/GETTING_STARTED.md) · [Demo Guide](docs/DEMO_GUIDE.md) · [Development](docs/DEVELOPMENT.md) · [Deployment](docs/DEPLOYMENT.md)
 

@@ -28,6 +28,29 @@ const setRevealGroup = (node: HTMLElement, entered: boolean) => {
 const SplitText = ({ text, dark = false, start = 0 }: { text: string; dark?: boolean; start?: number }) => <span className={`mx-split ${dark ? `mx-ink` : ``}`}>{text.split(` `).map((word, index, words) => <span className="mx-word" key={`${word}-${index}`}><span style={{ '--word-order': index + start } as CSSProperties}>{word}{index < words.length - 1 ? `\u00a0` : ``}</span></span>)}</span>;
 const PlanBenefits = ({ plan }: { plan: (typeof PLAN_ORDER)[number] }) => <ul className="mx-plan-benefits">{planActionAllowances(plan).map(action => <li key={action.id}>{action.label}: {action.limit} / day</li>)}<li>{PLAN_MATCHED_CHAT}</li></ul>;
 
+const FeatureTicker = () => {
+  const track = useRef<HTMLDivElement>(null);
+  const [copies, setCopies] = useState(2);
+  useLayoutEffect(() => {
+    const node = track.current;
+    const group = node?.firstElementChild;
+    const container = node?.parentElement;
+    if (!node || !group || !container) return;
+    const measure = () => {
+      const groupWidth = group.getBoundingClientRect().width;
+      if (!groupWidth) return;
+      node.style.setProperty(`--ticker-distance`, `${-groupWidth}px`);
+      setCopies(Math.max(2, Math.ceil(container.clientWidth / groupWidth) + 1));
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(group);
+    observer.observe(container);
+    measure();
+    return () => observer.disconnect();
+  }, []);
+  return <div className="mx-ticker" aria-hidden="true"><div ref={track}>{Array.from({ length: copies }, (_, index) => <span key={index}>LESS ENDLESS SWIPING <b>✳</b> MORE REAL POSSIBILITY <b>✳</b> YOUR KIND OF PEOPLE <b>✳</b> YOUR KIND OF PACE <b>✳</b> </span>)}</div></div>;
+};
+
 export const LandingScreen = () => {
   const { dark } = useTheme();
   const { state, ready } = useApp();
@@ -41,6 +64,7 @@ export const LandingScreen = () => {
   const privacy = useRef<HTMLDialogElement>(null);
   const deviceNodes = useRef<(HTMLDivElement | null)[]>([]);
   const phase = useRef(0);
+  const sparkScroll = useRef<{ start: number; target: number } | null>(null);
   const [reduced, setReduced] = useState(() => typeof window !== `undefined` && window.matchMedia(`(prefers-reduced-motion: reduce)`).matches);
   const authenticated = ready && !!state.session;
 
@@ -76,18 +100,51 @@ export const LandingScreen = () => {
     const scrollArea = page.current;
     const scene = stage.current;
     const track = journey.current;
+    const ticker = scrollArea?.querySelector<HTMLElement>(`.mx-ticker`);
+    const focusAction = ending.current?.querySelector<HTMLElement>(`.mx-focus-right`);
+    const focusHeading = ending.current?.querySelector<HTMLElement>(`.mx-focus-left`);
     if (!scrollArea || !scene || !track || authenticated) return;
+    if (reduced && sparkScroll.current) {
+      scrollArea.scrollTo({ top: sparkScroll.current.target, behavior: `instant` });
+      sparkScroll.current = null;
+      delete scrollArea.dataset.sparkScroll;
+    }
     let frame = 0;
     let previousTime = performance.now();
     let width = scene.clientWidth;
     let height = scene.clientHeight;
+    let stageInset = Number.parseFloat(scene.style.getPropertyValue(`--stage-inset`)) || 0;
+    let tickerHeight = 0;
+    let tickerTop = 0;
     let introBottom = 0;
+    let focusTop = 0;
+    let focusBottom = height;
     let start = track.offsetTop;
     let distance = Math.max(1, track.offsetHeight - height);
+    const measureScene = () => {
+      width = scene.clientWidth;
+      height = scene.clientHeight;
+      introBottom = (intro.current?.offsetTop ?? 0) + (intro.current?.offsetHeight ?? 0);
+      focusTop = (focusHeading?.offsetTop ?? 0) + (focusHeading?.offsetHeight ?? 0) + 16;
+      focusBottom = (focusAction?.offsetTop ?? height) - 16;
+    };
     const draw = (time: number) => {
       frame = 0;
       const delta = Math.min(50, time - previousTime);
       previousTime = time;
+      const scrolling = sparkScroll.current;
+      if (scrolling && Math.abs(scrollArea.scrollTop - scrolling.target) <= 1) {
+        sparkScroll.current = null;
+        delete scrollArea.dataset.sparkScroll;
+      }
+      const tickerVisible = Math.max(0, Math.min(tickerHeight, scrollArea.scrollTop + scrollArea.clientHeight - tickerTop));
+      const scrollReveal = scrolling && !reduced ? smooth((scrollArea.scrollTop - scrolling.start) / Math.max(1, scrolling.target - scrolling.start) / .3) : 0;
+      const inset = Math.max(tickerVisible, tickerHeight * scrollReveal);
+      if (Math.abs(inset - stageInset) > .01) {
+        stageInset = inset;
+        scene.style.setProperty(`--stage-inset`, `${inset}px`);
+        measureScene();
+      }
       const progress = clamp(scrollArea.scrollTop / distance);
       const motionProgress = reduced ? Number(progress >= .5) : progress;
       const gather = smooth((motionProgress - .38) / .5);
@@ -99,11 +156,13 @@ export const LandingScreen = () => {
       const baseScale = mobile ? Math.min(.79, width / 460) : Math.min(.92, height / 880);
       const revealedScale = Math.min(baseScale, height * .47 / 716, width * (mobile ? 1.75 : .95) / 1432);
       const orbitScale = baseScale + (revealedScale - baseScale) * rise;
-      const scale = orbitScale * spread + Math.min(mobile ? .87 : 1.02, height * .66 / 582.4) * gather;
+      const focusHeight = mobile ? Math.max(0, focusBottom - focusTop) : height * .66;
+      const focusY = mobile ? (focusTop + focusBottom) / 2 : height * .51;
+      const scale = orbitScale * spread + Math.min(mobile ? .87 : 1.02, focusHeight / 582.4) * gather;
       const radius = 410 * orbitScale * spread;
       const startY = introBottom + (mobile ? 80 : 64) + 716 * baseScale;
       const orbitY = startY + (height * .51 - startY) * rise;
-      const centerY = orbitY * spread + height * .51 * gather;
+      const centerY = orbitY * spread + focusY * gather;
       if (centerIcon.current) {
         const iconFade = 1 - smooth(gather / .55);
         const iconInView = centerY + 85 * orbitScale > 0 && centerY - 85 * orbitScale < height;
@@ -143,33 +202,67 @@ export const LandingScreen = () => {
     const schedule = () => { if (!frame) { previousTime = performance.now(); frame = requestAnimationFrame(draw); } };
     const measure = () => {
       scrollArea.style.setProperty(`--header-height`, `${header.current?.offsetHeight ?? 96}px`);
-      width = scene.clientWidth;
-      height = scene.clientHeight;
-      introBottom = (intro.current?.offsetTop ?? 0) + (intro.current?.offsetHeight ?? 0);
+      tickerHeight = ticker?.offsetHeight ?? 0;
+      tickerTop = ticker?.offsetTop ?? track.offsetTop + track.offsetHeight;
+      measureScene();
       start = track.offsetTop;
-      distance = Math.max(1, track.offsetHeight - height);
+      distance = Math.max(1, track.offsetHeight - height - stageInset);
       schedule();
+    };
+    const stopSparkScroll = () => {
+      if (!sparkScroll.current) return;
+      sparkScroll.current = null;
+      delete scrollArea.dataset.sparkScroll;
+      scrollArea.scrollTo({ top: scrollArea.scrollTop, behavior: `instant` });
+      schedule();
+    };
+    const stopOnScrollKey = (event: KeyboardEvent) => {
+      if ([` `, `Home`, `End`, `ArrowUp`, `ArrowDown`, `PageUp`, `PageDown`].includes(event.key)) stopSparkScroll();
     };
     const observer = new ResizeObserver(measure);
     observer.observe(scene);
+    if (ticker) observer.observe(ticker);
+    if (focusAction) observer.observe(focusAction);
+    if (focusHeading) observer.observe(focusHeading);
     if (intro.current) observer.observe(intro.current);
     if (header.current) observer.observe(header.current);
     scrollArea.addEventListener(`scroll`, schedule, { passive: true });
+    scrollArea.addEventListener(`scrollend`, stopSparkScroll);
+    scrollArea.addEventListener(`keydown`, stopOnScrollKey);
+    scrollArea.addEventListener(`wheel`, stopSparkScroll, { passive: true });
+    scrollArea.addEventListener(`touchstart`, stopSparkScroll, { passive: true });
+    scrollArea.addEventListener(`pointerdown`, stopSparkScroll, { passive: true });
     document.addEventListener(`visibilitychange`, schedule);
     measure();
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
       scrollArea.removeEventListener(`scroll`, schedule);
+      scrollArea.removeEventListener(`scrollend`, stopSparkScroll);
+      scrollArea.removeEventListener(`keydown`, stopOnScrollKey);
+      scrollArea.removeEventListener(`wheel`, stopSparkScroll);
+      scrollArea.removeEventListener(`touchstart`, stopSparkScroll);
+      scrollArea.removeEventListener(`pointerdown`, stopSparkScroll);
       document.removeEventListener(`visibilitychange`, schedule);
     };
   }, [reduced, authenticated]);
 
   const goTo = (id: string) => {
+    sparkScroll.current = null;
+    if (page.current) delete page.current.dataset.sparkScroll;
     const target = page.current?.querySelector<HTMLElement>(`#${id}`);
     if (target) page.current?.scrollTo({ top: id === `top` ? 0 : target.offsetTop - (header.current?.offsetHeight ?? 96), behavior: reduced ? `instant` : `smooth` });
   };
   const begin = () => router.push(`/sign-in`);
+  const findSpark = () => {
+    const root = page.current;
+    const ticker = root?.querySelector<HTMLElement>(`.mx-ticker`);
+    if (!root || !ticker) return;
+    const top = root.scrollTop + ticker.getBoundingClientRect().bottom - root.getBoundingClientRect().bottom;
+    sparkScroll.current = reduced ? null : { start: root.scrollTop, target: Math.max(0, top) };
+    if (!reduced) root.dataset.sparkScroll = `active`;
+    root.scrollTo({ top: Math.max(0, top), behavior: reduced ? `instant` : `smooth` });
+  };
   if (authenticated) return <Redirect href={state.session?.onboarded ? `/discover` : `/onboarding`} />;
 
   return <div ref={page} className={`mx-landing ${dark ? `mx-dark` : `mx-light`}`} style={{ '--motion-play': reduced ? `paused` : `running` } as CSSProperties}>
@@ -183,7 +276,7 @@ export const LandingScreen = () => {
             <div className="mx-eyebrow mx-reveal-item"><span className="mx-tiny-spark">✳</span> PREMIUM FEATURES, REASONABLE PRICING</div>
             <h1 aria-label="You will love the cost of love."><span aria-hidden="true"><span className="mx-headline-line"><SplitText text="You" /> <SplitText text="will" dark start={1} /> <SplitText text="love" start={2} /></span><span className="mx-headline-line"><SplitText text="The" start={3} /> <SplitText text="cost" dark start={4} /> <br className="mx-mobile-break" /><SplitText text="of love" start={5} /><SplitText text="." dark start={7} /></span></span></h1>
             <p className="mx-reveal-item" style={{ '--reveal-delay': `180ms` } as CSSProperties}>Leaving you more time to</p>
-            <SparkButton className="mx-pill mx-pill-black mx-pill-cream mx-reveal-item" revealDelay={300} onPress={begin} />
+            <SparkButton className="mx-pill mx-pill-black mx-pill-cream mx-reveal-item" revealDelay={300} onPress={findSpark} />
           </div>
           <div className="mx-orbit-scene" aria-hidden="true">
             <div ref={centerIcon} className="mx-orbit-icon"><div className="mx-orbit-icon-spin"><AppIcon size={120} /></div></div>
@@ -198,7 +291,7 @@ export const LandingScreen = () => {
           <div className="mx-progress" aria-hidden="true" />
         </div>
       </section>
-      <div className="mx-ticker" aria-hidden="true"><div>{[0, 1].map(value => <span key={value}>LESS ENDLESS SWIPING <b>✳</b> MORE REAL POSSIBILITY <b>✳</b> YOUR KIND OF PEOPLE <b>✳</b> YOUR KIND OF PACE <b>✳</b> </span>)}</div></div>
+      <FeatureTicker />
       <section id="experience" className="mx-experience mx-section" tabIndex={-1}>
         <div className="mx-section-heading"><div><span className="mx-eyebrow mx-reveal mx-reveal-item">THOUGHTFUL BY DESIGN</span><h2 className="mx-reveal"><SplitText text="Good chemistry." /><br /><span><SplitText text="Better features." start={2} /></span></h2></div><WordCircle /><p className="mx-reveal mx-reveal-item">A dating app should make room for connection. So we made the good stuff part of the experience.</p></div>
         <div className="mx-features">

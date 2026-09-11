@@ -1,5 +1,6 @@
 import { ageOf } from './matching';
 import { OPTIONS } from '../config/app';
+import { isProfileAvatar, isStoredProfilePhoto } from './avatars';
 import { AppState, Attribute, Preferences, Profile } from './types';
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === `object` && value !== null && !Array.isArray(value);
@@ -15,7 +16,7 @@ export const profileError = (profile: Profile, now = new Date()) => {
   if (!Number.isFinite(age) || age < 18 || age > 120) return `Enter A Valid Date Of Birth — You Must Be 18+`;
   if (!profile.city.trim() || profile.city.length > 100) return `Enter Your City`;
   if (profile.bio.length > 1000 || profile.job.length > 100) return `Keep Your Bio Under 1,000 Characters And Job Under 100`;
-  if (!profile.photos.length || profile.photos.length > 6 || profile.photos.some(photo => !photo || (![`sofia`, `maya`, `elena`, `marcus`, `ethan`, `noah`].includes(photo) && !validUri(photo)))) return `Add 1–6 Valid Profile Photos`;
+  if (!profile.photos.length || profile.photos.length > 6 || profile.photos.some(photo => !photo || (![`sofia`, `maya`, `elena`, `marcus`, `ethan`, `noah`].includes(photo) && !isProfileAvatar(photo) && !(/^data:/i.test(photo) ? isStoredProfilePhoto(photo) : validUri(photo))))) return `Add 1–6 Valid Profile Photos`;
   if (profile.interests.length > 12 || profile.interests.some(interest => !interest.trim() || interest.length > 60)) return `Choose Up To 12 Interests`;
   if (!Number.isFinite(profile.distance) || profile.distance < 0 || profile.distance > 25000) return `Enter A Valid Distance`;
   if (profile.links.length > 5 || profile.links.some(link => !link.label.trim() || link.label.length > 80 || !validPublicLink(link.url))) return `Use Up To Five Named HTTPS Public Links`;
@@ -50,6 +51,7 @@ export const isAppState = (value: unknown): value is AppState => {
   const ids = new Set(value.profiles.map(profile => profile.id));
   const selfId = value.user.id;
   if (value.session !== null && (!isRecord(value.session) || ![`member`, `owner`].includes(String(value.session.role)) || typeof value.session.onboarded !== `boolean`)) return false;
+  if (value.onboardingComplete !== undefined && typeof value.onboardingComplete !== `boolean`) return false;
   const settings = value.settings;
   if (!isRecord(settings) || ![`light`, `dark`, `system`].includes(String(settings.theme)) || typeof settings.incognito !== `boolean` || typeof settings.discoverable !== `boolean`) return false;
   if (!isRecord(settings.notifications) || [`push`, `email`, `sms`].some(key => typeof (settings.notifications as Record<string, unknown>)[key] !== `boolean`)) return false;

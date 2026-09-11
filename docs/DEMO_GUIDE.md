@@ -6,7 +6,7 @@ The current release runs locally with fictional adult profiles. Authentication, 
 
 ## Explore The App
 
-1. Choose **Continue As Demo Member**, enter an adult date of birth in `YYYY-MM-DD` format, and complete onboarding. Your public profile shows age, not birth date. This local check demonstrates the 18+ flow; it is not identity verification.
+1. Choose **Create My Profile** and complete three steps: **The Basics** for your name, adult birth date in `YYYY-MM-DD` format, and city; **Your Look** to take a photo, upload one, use an HTTPS image URL, or choose an avatar; and **Your Vibe** for an optional bio, up to 12 interests, and 18+ confirmation. Your public profile shows age, not birth date. This local check demonstrates the 18+ flow; it is not identity verification.
 2. Open Discover. Swipe or use pass, like, Super Like, and rewind buttons. Some fictional profiles have already liked your demo profile, so a like can create a mutual match.
 3. Send one first message to an unmatched person for 1 XO, or open Matches to chat for free. Pending introductions wait for a mutual match; only matched conversations receive explicitly simulated replies. Try the Safety controls to report, block, or unmatch without spending XOs.
 4. Edit Profile to arrange photos, change your description and interests, add optional attributes, try voice/video introductions, and manage public links. Preferences supports age, distance, optional criteria, and exact-name exclusions.
@@ -17,7 +17,7 @@ The current release runs locally with fictional adult profiles. Authentication, 
 
 ## Explore The Owner Dashboard
 
-Sign out and choose **Explore As Demo Owner**. Create, edit, or delete sample profiles, review reports, and inspect local counts and storage status. Fresh owner sessions also complete the adult date-of-birth gate.
+Sign out and choose **Preview Tools → Open Owner Preview**. Create, edit, or delete sample profiles, review reports, and inspect local counts and storage status. Fresh owner sessions also complete onboarding; a previously completed profile resumes without repeating the age gate.
 
 This is not a production administrator login. Ownership and moderation permissions must be enforced by a server when accounts are connected; see [Deployment](DEPLOYMENT.md).
 
@@ -31,7 +31,7 @@ Location is manually entered and distances are fictional approximations. Optiona
 
 Web uses browser localStorage; iOS and Android use AsyncStorage. A versioned, validated snapshot saves profiles, preferences, wallet activity, conversations, and demo reports under `matchxd.demo.v1`. Each browser origin and device has its own state, including separate localhost ports. This storage is not encrypted and should contain demo data only.
 
-- **Sign Out** ends the local session and preserves your profile, photos, interests, preferences, and saved activity. It also lets you change demo roles. On re-entry, confirm an adult birth date again; saved profile details remain available.
+- **Sign Out** ends the local session and preserves your profile, photos, interests, preferences, and saved activity. It also lets you change demo roles. After completing onboarding, choose **Continue On This Device** to resume without repeating the age gate. Leaving unfinished onboarding returns to sign-in without a signed-out toast.
 - **Reset Demo Data** replaces local changes with the fictional starter data.
 - **Delete Local Account** erases the local user's changes and activity, ends the session, and returns to fresh starter data. There is no remote account or real subscription to cancel.
 - Corrupt or unsupported snapshots open a fresh in-memory demo with a storage warning. The next saved change replaces the invalid copy; Settings → Reset Demo Data also restores starter data. If storage is blocked or full, changes remain in memory and the app shows a warning.
@@ -40,6 +40,8 @@ Web uses browser localStorage; iOS and Android use AsyncStorage. A versioned, va
 
 Bundled portraits and sample people are fictional demo content. The voice sample is synthetic, and the video is a branded sample clip, not an actual member recording. See [Asset Provenance](ASSET_PROVENANCE.md) for their origins.
 
-Uploaded browser photos/audio/video are session previews; temporary blob/data URLs are excluded from saved snapshots and must be reselected after reload. Native selections reference local cached files, which can disappear when the operating system clears cache. Bundled samples remain available. No media is uploaded to a server.
+Onboarding accepts JPG, PNG, and WebP photos up to 2 MiB. On the web, these photos are saved as bounded image data and survive reloads; native onboarding copies photos into the app's document storage. Avatars stay available locally. HTTPS image links must remain publicly accessible. Camera access requires permission; web capture also requires a supported browser and HTTPS or localhost. Native builds must be rebuilt to include the newly enabled camera permission.
+
+Photos added through Edit Profile and uploaded audio/video still use temporary browser previews or native cached files. Browser blob URLs are excluded from saved snapshots and must be reselected after reload; native cached files can disappear when the operating system clears cache. Bundled samples remain available. No media is uploaded to a server.
 
 See [Verification](VERIFICATION.md) for executed checks and known limitations.

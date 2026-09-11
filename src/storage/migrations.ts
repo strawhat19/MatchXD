@@ -1,6 +1,7 @@
 import { isAppState } from '../domain/validation';
 import { AppState, Profile } from '../domain/types';
 import { restoreActivityHistory } from '../domain/quotas';
+import { defaultProfileAvatar, isStoredProfilePhoto } from '../domain/avatars';
 
 const legacyWelcome = `Hi, I’m MXO, your local demo connection guide. Tell me what matters to you — try “someone who likes hiking and coffee” or “ages 25 to 35 within 10 miles.” I use only what you share and the demo profiles.`;
 const currentWelcome = `Hi, I’m MXO, your connection guide. Tell me what matters to you — try “someone who likes hiking and coffee” or “ages 25 to 35 within 10 miles.”`;
@@ -35,10 +36,10 @@ const migrateV1Copy = (state: AppState): AppState => {
 };
 const durableMedia = (uri?: string) => uri && !/^(blob:|data:)/i.test(uri) ? uri : undefined;
 const durableProfile = (profile: Profile): Profile => {
-  const photos = profile.photos.filter(photo => durableMedia(photo));
-  return { ...profile, photos: photos.length ? photos : [`noah`], voiceUri: durableMedia(profile.voiceUri), videoUri: durableMedia(profile.videoUri) };
+  const photos = profile.photos.filter(photo => durableMedia(photo) || isStoredProfilePhoto(photo));
+  return { ...profile, photos: photos.length ? photos : [defaultProfileAvatar], voiceUri: durableMedia(profile.voiceUri), videoUri: durableMedia(profile.videoUri) };
 };
-export const serializableSnapshot = (state: AppState): AppState => ({ ...state, user: durableProfile(state.user), profiles: state.profiles.map(durableProfile) });
+export const serializableSnapshot = (state: AppState): AppState => ({ ...state, onboardingComplete: state.onboardingComplete || !!state.session?.onboarded, user: durableProfile(state.user), profiles: state.profiles.map(durableProfile) });
 export const serializeSnapshot = (state: AppState) => JSON.stringify(serializableSnapshot(state));
 export const migrateSnapshot = (raw: string): AppState => {
   const parsed: unknown = JSON.parse(raw);
@@ -50,5 +51,5 @@ export const migrateSnapshot = (raw: string): AppState => {
   }
   const restored = restoreActivityHistory(parsed as AppState);
   if (!isAppState(restored)) throw new Error(`The Saved Data Failed Validation`);
-  return migrateV1Copy(restored);
+  return migrateV1Copy({ ...restored, onboardingComplete: restored.onboardingComplete || !!restored.session?.onboarded });
 };

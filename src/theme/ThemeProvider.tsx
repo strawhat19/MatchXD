@@ -3,7 +3,7 @@ import { palettes } from './tokens';
 import { useApp } from '../state/AppProvider';
 import { createContext, useContext, type ReactNode } from 'react';
 
-const ThemeContext = createContext({ colors: palettes.dark, dark: true });
+const ThemeContext = createContext({ colors: palettes.light, dark: false });
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const scheme = useColorScheme();

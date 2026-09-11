@@ -62,6 +62,7 @@ export type AppState = {
   user: Profile;
   profiles: Profile[];
   session: { role: `member` | `owner`; onboarded: boolean } | null;
+  onboardingComplete?: boolean;
   settings: Settings;
   preferences: Preferences;
   wallet: Wallet;
@@ -91,5 +92,5 @@ export type Action =
   | { type: `purchase`; cents: number; operationId?: string }
   | { type: `admin-save-profile`; profile: Profile }
   | { type: `ad-reward`; operationId?: string }
-  | { type: `cancel-plan` | `reset` | `delete-account` | `sign-out` | `refresh` };
+  | { type: `cancel-plan` | `reset` | `delete-account` | `sign-out` | `cancel-onboarding` | `refresh` };
 export type ActionResult = { ok: boolean; message?: string; matchId?: string };

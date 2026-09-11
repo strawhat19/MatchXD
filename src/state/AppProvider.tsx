@@ -1,6 +1,7 @@
 import { transition } from '../domain/transition';
 import { initialState } from '../data/demoProfiles';
 import { AppState as NativeAppState } from 'react-native';
+import { clearProfilePhotos } from '../storage/profilePhotos';
 import { loadSnapshot, saveSnapshot } from '../storage/adapter';
 import { Action, ActionResult, AppState } from '../domain/types';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
@@ -25,6 +26,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const act = useCallback((action: Action): ActionResult => {
     if (!hydrated.current) return { ok: false, message: `Still Loading` };
     const next = transition(current.current, action);
+    if (next.result.ok && (action.type === `reset` || action.type === `delete-account`)) {
+      try { clearProfilePhotos(); }
+      catch { next.result.message = `App Data Cleared — Saved Photos Could Not Be Removed`; }
+    }
     if (next.state !== current.current) {
       current.current = next.state;
       setState(next.state);

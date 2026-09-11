@@ -13,7 +13,7 @@ import { migrateSnapshot, serializeSnapshot, serializableSnapshot } from '../sto
 import { ageOf, canViewProfile, discoveryProfiles, matchesPreferences, visibleProfiles } from './matching';
 
 const now = new Date(`2026-09-10T16:00:00.000Z`);
-const member = (): AppState => ({ ...initialState(now), session: { role: `member`, onboarded: true } });
+const member = (): AppState => ({ ...initialState(now), onboardingComplete: true, session: { role: `member`, onboarded: true } });
 const run = (state: AppState, action: Action, at = now) => transition(state, action, at);
 
 test(`Landing theme changes work before sign-in without allowing privacy or member actions`, () => {
@@ -234,7 +234,7 @@ test(`Persistence round trips validated state, rejects corruption, and strips tr
   assert.equal(migrateSnapshot(JSON.stringify(older)).nextProfileNumber, nextProfileNumber);
   const transient = { ...state, user: { ...state.user, photos: [`blob:preview`, `data:image/png;base64,ABC`], voiceUri: `blob:voice`, videoUri: `demo:video` } };
   const durable = serializableSnapshot(transient);
-  assert.deepEqual(durable.user.photos, [`noah`]);
+  assert.deepEqual(durable.user.photos, [`avatar:coral`]);
   assert.equal(durable.user.voiceUri, undefined);
   assert.equal(durable.user.videoUri, `demo:video`);
   assert.equal(transient.user.photos[0], `blob:preview`);

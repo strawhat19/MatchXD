@@ -40,10 +40,20 @@ export const transition = (previous: AppState, action: Action, now = new Date())
     state = initialState(now);
     return done(action.type === `reset` ? `App Data Reset` : `Account Data Deleted`);
   }
-  if (action.type === `sign-out`) { state = { ...state, session: null }; return done(`Signed Out`); }
+  if (action.type === `cancel-onboarding`) {
+    if (state.session && !state.session.onboarded) state = { ...state, session: null };
+    return done();
+  }
+  if (action.type === `sign-out`) {
+    if (!state.session) return done();
+    const onboarded = state.session.onboarded;
+    state = { ...state, session: null, onboardingComplete: state.onboardingComplete || onboarded };
+    return done(onboarded ? `Signed Out` : undefined);
+  }
   if (action.type === `start-session`) {
     if (![`member`, `owner`].includes(action.role)) return fail(`Choose An Account Role`);
-    state = { ...state, session: { role: action.role, onboarded: state.session?.onboarded || false } };
+    const onboarded = state.onboardingComplete || state.session?.onboarded || false;
+    state = { ...state, onboardingComplete: onboarded, session: { role: action.role, onboarded } };
     return done();
   }
   if (!state.session && action.type === `save-settings`) {
@@ -51,7 +61,7 @@ export const transition = (previous: AppState, action: Action, now = new Date())
     const theme = action.settings.theme;
     if (!theme || ![`light`, `dark`, `system`].includes(theme)) return fail(`Choose A Valid Theme`);
     state = { ...state, settings: { ...state.settings, theme } };
-    return done(`Theme Updated`);
+    return done();
   }
   if (!state.session) return fail(`Sign In To Continue`);
   if (`operationId` in action && action.operationId && state.wallet.operations.includes(action.operationId)) return done(`This Action Was Already Applied`);
@@ -62,7 +72,8 @@ export const transition = (previous: AppState, action: Action, now = new Date())
     if (!isProfile(candidate)) return fail(profileError(candidate, now) || `Check Your Profile Details`);
     const error = profileError(candidate, now);
     if (error) return fail(error);
-    state = { ...state, user: cleanProfile(candidate), session: { ...state.session, onboarded: state.session.onboarded || !!action.complete } };
+    const onboarded = state.session.onboarded || !!action.complete;
+    state = { ...state, onboardingComplete: state.onboardingComplete || onboarded, user: cleanProfile(candidate), session: { ...state.session, onboarded } };
     return done(`Profile Saved`);
   }
   if (action.type === `save-settings`) {
@@ -71,7 +82,7 @@ export const transition = (previous: AppState, action: Action, now = new Date())
     if (settings.incognito && !hasTier(state.wallet.plan, `mxd`)) return fail(`Incognito Is Included With MXD`);
     if (typeof settings.discoverable !== `boolean` || typeof settings.incognito !== `boolean` || Object.values(settings.notifications).some(value => typeof value !== `boolean`)) return fail(`Choose Valid Settings`);
     state = { ...state, settings, user: { ...state.user, discoverable: settings.discoverable, incognito: settings.incognito } };
-    return done(`Settings Saved`);
+    return done(Object.keys(action.settings).some(key => key !== `theme`) ? `Settings Saved` : undefined);
   }
   if (!state.session.onboarded) return fail(`Complete Your 18+ Profile First`);
   if (action.type === `save-preferences`) {
