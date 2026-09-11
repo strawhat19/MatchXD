@@ -116,40 +116,55 @@ export const LandingScreen = () => {
     let stageInset = Number.parseFloat(scene.style.getPropertyValue(`--stage-inset`)) || 0;
     let tickerHeight = 0;
     let tickerTop = 0;
+    let sceneVersion = 0;
+    let drawnVersion = -1;
+    let previousProgress = -1;
+    let previouslyVisible = false;
+    let viewportHeight = scrollArea.clientHeight;
+    let trackHeight = track.offsetHeight;
     let introBottom = 0;
     let focusTop = 0;
     let focusBottom = height;
     let start = track.offsetTop;
     let distance = Math.max(1, track.offsetHeight - height);
+    let displayedProgress = clamp(scrollArea.scrollTop / distance);
     const measureScene = () => {
       width = scene.clientWidth;
       height = scene.clientHeight;
       introBottom = (intro.current?.offsetTop ?? 0) + (intro.current?.offsetHeight ?? 0);
       focusTop = (focusHeading?.offsetTop ?? 0) + (focusHeading?.offsetHeight ?? 0) + 16;
       focusBottom = (focusAction?.offsetTop ?? height) - 16;
+      sceneVersion += 1;
     };
+    deviceNodes.current.forEach((node, index) => {
+      if (node) node.style.zIndex = `${index === 0 ? orbitPhones.length + 1 : orbitPhones.length - index}`;
+    });
     const draw = (time: number) => {
       frame = 0;
       const delta = Math.min(50, time - previousTime);
       previousTime = time;
+      const scrollTop = scrollArea.scrollTop;
       const scrolling = sparkScroll.current;
-      if (scrolling && Math.abs(scrollArea.scrollTop - scrolling.target) <= 1) {
+      if (scrolling && Math.abs(scrollTop - scrolling.target) <= 1) {
         sparkScroll.current = null;
         delete scrollArea.dataset.sparkScroll;
       }
-      const tickerVisible = Math.max(0, Math.min(tickerHeight, scrollArea.scrollTop + scrollArea.clientHeight - tickerTop));
-      const scrollReveal = scrolling && !reduced ? smooth((scrollArea.scrollTop - scrolling.start) / Math.max(1, scrolling.target - scrolling.start) / .3) : 0;
+      const tickerVisible = Math.max(0, Math.min(tickerHeight, scrollTop + viewportHeight - tickerTop));
+      const scrollReveal = scrolling && !reduced ? smooth((scrollTop - scrolling.start) / Math.max(1, scrolling.target - scrolling.start) / .3) : 0;
       const inset = Math.max(tickerVisible, tickerHeight * scrollReveal);
       if (Math.abs(inset - stageInset) > .01) {
         stageInset = inset;
         scene.style.setProperty(`--stage-inset`, `${inset}px`);
-        measureScene();
       }
-      const progress = clamp(scrollArea.scrollTop / distance);
+      const targetProgress = clamp(scrollTop / distance);
+      const visible = scrollTop < start + trackHeight && !document.hidden;
+      const settling = Math.abs(targetProgress - displayedProgress) > .0001;
+      const progress = reduced || !visible || !settling ? targetProgress : displayedProgress + (targetProgress - displayedProgress) * (1 - Math.exp(-delta / 55));
+      displayedProgress = progress;
       const motionProgress = reduced ? Number(progress >= .5) : progress;
       const gather = smooth((motionProgress - .38) / .5);
       const rise = smooth(motionProgress / .38);
-      const visible = scrollArea.scrollTop < start + track.offsetHeight && !document.hidden;
+      const changed = progress !== previousProgress || visible !== previouslyVisible || sceneVersion !== drawnVersion;
       if (!reduced && visible && progress < .38) phase.current += delta * .0001;
       const spread = 1 - gather;
       const mobile = width < 700;
@@ -163,7 +178,7 @@ export const LandingScreen = () => {
       const startY = introBottom + (mobile ? 80 : 64) + 716 * baseScale;
       const orbitY = startY + (height * .51 - startY) * rise;
       const centerY = orbitY * spread + focusY * gather;
-      if (centerIcon.current) {
+      if (centerIcon.current && changed) {
         const iconFade = 1 - smooth(gather / .55);
         const iconInView = centerY + 85 * orbitScale > 0 && centerY - 85 * orbitScale < height;
         centerIcon.current.style.transform = `translate(-50%, -50%) translate3d(0, ${centerY.toFixed(2)}px, 0) scale(${orbitScale.toFixed(4)})`;
@@ -173,40 +188,57 @@ export const LandingScreen = () => {
       }
       deviceNodes.current.forEach((node, index) => {
         if (!node) return;
+        const fade = index === 0 ? 1 : 1 - smooth((motionProgress - .48) / .34);
+        if (changed) node.style.opacity = `${fade}`;
+        if (fade < .01 || !visible) {
+          if (node.style.visibility !== `hidden`) node.style.visibility = `hidden`;
+          return;
+        }
         const angle = phase.current + index * Math.PI * 2 / orbitPhones.length;
         const turn = Math.atan2(Math.sin(angle), Math.cos(angle));
         const x = Math.sin(angle) * radius;
         const y = centerY - Math.cos(angle) * radius;
-        const fade = index === 0 ? 1 : 1 - smooth((motionProgress - .48) / .34);
+        const extent = 324 * scale + 40;
+        const inView = y + extent > 0 && y - extent < height && x + extent > -width / 2 && x - extent < width / 2;
+        const visibility = inView ? `visible` : `hidden`;
+        if (node.style.visibility !== visibility) node.style.visibility = visibility;
+        if (!inView) return;
         node.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotate(${(turn * 180 / Math.PI * spread).toFixed(2)}deg) scale(${scale.toFixed(4)})`;
-        node.style.opacity = `${fade}`;
-        node.style.zIndex = `${index === 0 ? orbitPhones.length + 1 : orbitPhones.length - index}`;
-        node.style.visibility = fade < .01 ? `hidden` : `visible`;
       });
-      if (intro.current) {
+      if (intro.current && changed) {
         setRevealGroup(intro.current, motionProgress <= .25 && visible);
         intro.current.style.opacity = `${1 - smooth(motionProgress / .25)}`;
         intro.current.style.transform = `translateY(${-progress * (reduced ? 0 : 90)}px)`;
         intro.current.style.visibility = motionProgress > .25 ? `hidden` : `visible`;
       }
-      if (ending.current) {
+      if (ending.current && changed) {
         setRevealGroup(ending.current, motionProgress >= .71 && visible);
         ending.current.style.opacity = `${smooth((motionProgress - .71) / .17)}`;
         ending.current.style.transform = `translateY(${(1 - gather) * (reduced ? 0 : 35)}px)`;
         ending.current.style.visibility = motionProgress < .71 ? `hidden` : `visible`;
       }
-      scene.dataset.phase = progress < .38 ? `orbit` : progress < .88 ? `gather` : `focus`;
-      scene.style.setProperty(`--journey-progress`, `${progress}`);
-      if (!reduced && visible && progress < .38) frame = requestAnimationFrame(draw);
+      if (changed) {
+        const nextPhase = progress < .38 ? `orbit` : progress < .88 ? `gather` : `focus`;
+        if (scene.dataset.phase !== nextPhase) scene.dataset.phase = nextPhase;
+        scene.style.setProperty(`--journey-progress`, `${progress}`);
+      }
+      if (!scene.dataset.ready) scene.dataset.ready = `true`;
+      previousProgress = progress;
+      previouslyVisible = visible;
+      drawnVersion = sceneVersion;
+      if (!reduced && visible && (progress < .38 || settling)) frame = requestAnimationFrame(draw);
     };
     const schedule = () => { if (!frame) { previousTime = performance.now(); frame = requestAnimationFrame(draw); } };
     const measure = () => {
-      scrollArea.style.setProperty(`--header-height`, `${header.current?.offsetHeight ?? 96}px`);
+      const headerHeight = `${header.current?.offsetHeight ?? 96}px`;
+      if (scrollArea.style.getPropertyValue(`--header-height`) !== headerHeight) scrollArea.style.setProperty(`--header-height`, headerHeight);
+      viewportHeight = scrollArea.clientHeight;
+      trackHeight = track.offsetHeight;
       tickerHeight = ticker?.offsetHeight ?? 0;
       tickerTop = ticker?.offsetTop ?? track.offsetTop + track.offsetHeight;
       measureScene();
       start = track.offsetTop;
-      distance = Math.max(1, track.offsetHeight - height - stageInset);
+      distance = Math.max(1, trackHeight - height - stageInset);
       schedule();
     };
     const stopSparkScroll = () => {
@@ -219,15 +251,19 @@ export const LandingScreen = () => {
     const stopOnScrollKey = (event: KeyboardEvent) => {
       if ([` `, `Home`, `End`, `ArrowUp`, `ArrowDown`, `PageUp`, `PageDown`].includes(event.key)) stopSparkScroll();
     };
+    const finishSparkScroll = () => {
+      if (sparkScroll.current && Math.abs(scrollArea.scrollTop - sparkScroll.current.target) <= 1) stopSparkScroll();
+    };
     const observer = new ResizeObserver(measure);
     observer.observe(scene);
+    observer.observe(scrollArea);
     if (ticker) observer.observe(ticker);
     if (focusAction) observer.observe(focusAction);
     if (focusHeading) observer.observe(focusHeading);
     if (intro.current) observer.observe(intro.current);
     if (header.current) observer.observe(header.current);
     scrollArea.addEventListener(`scroll`, schedule, { passive: true });
-    scrollArea.addEventListener(`scrollend`, stopSparkScroll);
+    scrollArea.addEventListener(`scrollend`, finishSparkScroll);
     scrollArea.addEventListener(`keydown`, stopOnScrollKey);
     scrollArea.addEventListener(`wheel`, stopSparkScroll, { passive: true });
     scrollArea.addEventListener(`touchstart`, stopSparkScroll, { passive: true });
@@ -238,7 +274,7 @@ export const LandingScreen = () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
       scrollArea.removeEventListener(`scroll`, schedule);
-      scrollArea.removeEventListener(`scrollend`, stopSparkScroll);
+      scrollArea.removeEventListener(`scrollend`, finishSparkScroll);
       scrollArea.removeEventListener(`keydown`, stopOnScrollKey);
       scrollArea.removeEventListener(`wheel`, stopSparkScroll);
       scrollArea.removeEventListener(`touchstart`, stopSparkScroll);

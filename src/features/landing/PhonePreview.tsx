@@ -1,10 +1,11 @@
+import { memo } from 'react';
 import { View } from 'react-native';
 import { Txt } from '../../components/ui';
 import Svg, { Path } from 'react-native-svg';
+import { PreviewPhoto } from './PreviewPhoto';
 import { palettes } from '../../theme/tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon, IconName } from '../../components/Icon';
-import { ProfilePhoto } from '../../components/ProfilePhoto';
 import { previewPeople, type PreviewPerson } from './phoneOrbit';
 import { AppIcon, ConnectedX } from '../../components/BrandMark';
 
@@ -53,7 +54,7 @@ const BottomNav = ({ s, screen }: { s: number; screen: PhoneScreen }) => {
 const DiscoverPreview = ({ s, person }: { s: number; person: PreviewPerson }) => <View style={{ flex: 1, gap: 10 * s, paddingBottom: 12 * s, paddingHorizontal: 14 * s }}>
   <View style={{ flexDirection: `row`, alignItems: `center`, justifyContent: `space-between` }}><View><Txt size={20 * s} weight={`bold`} color={colors.text} style={{ letterSpacing: -.7 * s }}>Discover</Txt><Txt size={7.5 * s} color={colors.muted}>{person.city}, NY · Close to you</Txt></View><View style={{ padding: 7 * s, backgroundColor: colors.surface, borderWidth: .8 * s, borderColor: colors.border, borderRadius: 9 * s }}><Icon name={`sliders`} size={12 * s} color={colors.text} /></View></View>
   <View style={{ flex: 1, minHeight: 0, borderRadius: 17 * s, overflow: `hidden`, backgroundColor: `#C2B7A7` }}>
-    <ProfilePhoto photo={person.photo} />
+    <PreviewPhoto photo={person.photo} />
     <View style={{ position: `absolute`, top: 9 * s, left: 10 * s, right: 10 * s, flexDirection: `row`, gap: 3 * s }}>{[1, 2, 3].map(part => <View key={part} style={{ flex: 1, height: 2 * s, borderRadius: s, backgroundColor: part === 1 ? `#FFFFFF` : `rgba(255,255,255,.4)` }} />)}</View>
     <LinearGradient colors={[`transparent`, `rgba(17,20,28,.90)`]} style={{ position: `absolute`, bottom: 0, left: 0, right: 0, paddingHorizontal: 14 * s, paddingBottom: 15 * s, paddingTop: 62 * s, gap: 4 * s }}>
       <Txt size={24 * s} weight={`bold`} color={`#FFFFFF`} style={{ letterSpacing: -.8 * s }}>{person.name}, {person.age}</Txt>
@@ -77,7 +78,7 @@ const MxoPreview = ({ s, person }: { s: number; person: PreviewPerson }) => <Vie
     <Txt size={9 * s} color={colors.muted}>{person.mxoReply ?? `Ask ${person.name} about ${person.interests[0]?.toLowerCase()}. There’s your first hello.`}</Txt>
   </View>
   <View style={{ flex: 1, minHeight: 0, backgroundColor: colors.surface, borderRadius: 15 * s, borderWidth: .8 * s, borderColor: colors.border, overflow: `hidden` }}>
-    <View style={{ flex: 1, minHeight: 0 }}><ProfilePhoto photo={person.photo} /></View>
+    <View style={{ flex: 1, minHeight: 0 }}><PreviewPhoto photo={person.photo} /></View>
     <View style={{ padding: 11 * s, gap: 3 * s }}><View style={{ flexDirection: `row`, alignItems: `center`, justifyContent: `space-between` }}><Txt size={15 * s} weight={`semibold`} color={colors.text}>{person.name}, {person.age}</Txt><Icon name={`arrow-up-right`} size={14 * s} color={colors.accentText} /></View><Txt size={7.3 * s} color={colors.muted}>{person.city}, NY · A little common ground</Txt><View style={{ marginTop: 4 * s, flexDirection: `row`, gap: 4 * s }}>{person.interests.slice(0, 2).map(label => <View key={label} style={{ paddingHorizontal: 7 * s, paddingVertical: 3 * s, backgroundColor: colors.pale, borderRadius: 12 * s }}><Txt size={7 * s} color={colors.accentText}>{label}</Txt></View>)}</View></View>
   </View>
 </View>;
@@ -85,7 +86,7 @@ const MxoPreview = ({ s, person }: { s: number; person: PreviewPerson }) => <Vie
 const MessagesPreview = ({ s, person }: { s: number; person: PreviewPerson }) => <View style={{ flex: 1, paddingHorizontal: 14 * s, gap: 12 * s }}>
   <View><Txt size={20 * s} weight={`bold`} color={colors.text} style={{ letterSpacing: -.7 * s }}>Good things start here.</Txt><Txt size={7.5 * s} color={colors.muted}>A little connection. A lot of possibility.</Txt></View>
   <View style={{ padding: 11 * s, borderWidth: .8 * s, borderColor: colors.border, borderRadius: 15 * s, flexDirection: `row`, alignItems: `center`, gap: 9 * s, backgroundColor: colors.surface }}>
-    <View style={{ width: 36 * s, height: 36 * s, borderRadius: 20 * s, overflow: `hidden` }}><ProfilePhoto photo={person.photo} /></View>
+    <View style={{ width: 36 * s, height: 36 * s, borderRadius: 20 * s, overflow: `hidden` }}><PreviewPhoto photo={person.photo} /></View>
     <View style={{ flex: 1 }}><Txt size={12 * s} color={colors.text} weight={`semibold`}>{person.name}</Txt><Txt size={7 * s} color={colors.muted}>Your Connection</Txt></View><Icon name={`heart`} size={14 * s} color={colors.accent} />
   </View>
   <Txt size={6.8 * s} color={colors.muted} style={{ textAlign: `center` }}>TODAY · A NEW HELLO</Txt>
@@ -97,7 +98,7 @@ const MessagesPreview = ({ s, person }: { s: number; person: PreviewPerson }) =>
   <View style={{ paddingHorizontal: 11 * s, paddingVertical: 8 * s, borderRadius: 17 * s, backgroundColor: colors.surface, borderWidth: .8 * s, borderColor: colors.border, flexDirection: `row`, alignItems: `center`, justifyContent: `space-between` }}><Txt size={8 * s} color={colors.muted}>Say a little hello…</Txt><View style={{ backgroundColor: colors.accent, padding: 6 * s, borderRadius: 15 * s }}><Icon name={`arrow-up`} size={12 * s} color={colors.onAccent} /></View></View>
 </View>;
 
-export const PhonePreview = ({ screen, model, width = 260, person = 0 }: PhonePreviewProps) => {
+const PhonePreviewComponent = ({ screen, model, width = 260, person = 0 }: PhonePreviewProps) => {
   const s = width / 260;
   const device = devices[model];
   const radius = 41 * s;
@@ -121,3 +122,5 @@ export const PhonePreview = ({ screen, model, width = 260, person = 0 }: PhonePr
     </View>
   </View>;
 };
+
+export const PhonePreview = memo(PhonePreviewComponent);

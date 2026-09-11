@@ -12,7 +12,7 @@ const headerWordmarks = {
   connected: { light: require('../../../assets/brand/variants/01-connected-wordmark-light.svg'), dark: require('../../../assets/brand/variants/01-connected-wordmark-dark.svg') },
   signed: { light: require('../../../assets/brand/variants/05-xoxo-signature-light.svg'), dark: require('../../../assets/brand/variants/05-xoxo-signature-dark.svg') },
 };
-const headerReveals = [0, 120, 240, 360].map(delay => FadeInDown.duration(850).delay(delay).easing(Easing.bezier(.22, .7, .2, 1)).reduceMotion(ReduceMotion.System));
+const headerReveals = [0, 60, 120, 180].map(delay => FadeInDown.duration(460).delay(delay).easing(Easing.bezier(.16, 1, .3, 1)).reduceMotion(ReduceMotion.System));
 
 export const LandingHeader = ({ onHome }: { onHome?: () => void }) => {
   const { act } = useApp();
