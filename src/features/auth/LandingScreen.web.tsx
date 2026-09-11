@@ -174,14 +174,14 @@ export const LandingScreen = () => {
 
   return <div ref={page} className={`mx-landing ${dark ? `mx-dark` : `mx-light`}`} style={{ '--motion-play': reduced ? `paused` : `running` } as CSSProperties}>
     <a className="mx-skip" href="#experience" onClick={event => { event.preventDefault(); goTo(`experience`); page.current?.querySelector<HTMLElement>(`#experience`)?.focus(); }}>Skip the animation</a>
-    <header ref={header} className="mx-header"><LandingHeader /></header>
+    <header ref={header} className="mx-header"><LandingHeader onHome={() => goTo(`top`)} /></header>
     <main>
       <section ref={journey} id="top" className="mx-journey" aria-label="Meet MatchXD">
         <div ref={stage} className="mx-stage" data-phase="orbit">
           <div className="mx-stage-grain" aria-hidden="true" />
           <div ref={intro} className="mx-intro mx-reveal-group">
             <div className="mx-eyebrow mx-reveal-item"><span className="mx-tiny-spark">✳</span> PREMIUM FEATURES, REASONABLE PRICING</div>
-            <h1 aria-label="You will love the cost of love."><span aria-hidden="true"><span className="mx-headline-line"><SplitText text="You" /> <SplitText text="will" dark start={1} /> <SplitText text="love" start={2} /></span><span className="mx-headline-line"><SplitText text="The" start={3} /> <SplitText text="cost" dark start={4} /> <br className="mx-mobile-break" /><SplitText text="of love" start={5} /><span className="mx-ink">.</span></span></span></h1>
+            <h1 aria-label="You will love the cost of love."><span aria-hidden="true"><span className="mx-headline-line"><SplitText text="You" /> <SplitText text="will" dark start={1} /> <SplitText text="love" start={2} /></span><span className="mx-headline-line"><SplitText text="The" start={3} /> <SplitText text="cost" dark start={4} /> <br className="mx-mobile-break" /><SplitText text="of love" start={5} /><SplitText text="." dark start={7} /></span></span></h1>
             <p className="mx-reveal-item" style={{ '--reveal-delay': `180ms` } as CSSProperties}>Leaving you more time to</p>
             <SparkButton className="mx-pill mx-pill-black mx-pill-cream mx-reveal-item" revealDelay={300} onPress={begin} />
           </div>

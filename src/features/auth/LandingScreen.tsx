@@ -155,7 +155,7 @@ export const LandingScreen = () => {
 
   if (ready && state.session) return <Redirect href={state.session.onboarded ? `/discover` : `/onboarding`} />;
   return <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: colors.bg }}>
-    <LandingHeader />
+    <LandingHeader onHome={() => goTo(0)} />
     <Animated.ScrollView ref={scrollRef} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ flexGrow: 1 }}>
       <LinearGradient colors={[`#F45B73`, `#F4506B`, `#EE3E66`]} locations={[0, .5, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
         <View style={{ height: heroHeight, overflow: `hidden` }}>

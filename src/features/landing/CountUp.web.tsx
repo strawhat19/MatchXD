@@ -1,5 +1,6 @@
 import './CountUp.css';
 import { useRef, useEffect } from 'react';
+import { formatCount } from './CountUp.shared';
 
 export type CountUpProps = { value: number };
 
@@ -7,6 +8,7 @@ export const CountUp = ({ value }: CountUpProps) => {
   const wrapper = useRef<HTMLSpanElement>(null);
   const number = useRef<HTMLSpanElement>(null);
   const target = Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+  const formattedTarget = formatCount(target);
 
   useEffect(() => {
     const element = wrapper.current;
@@ -20,7 +22,7 @@ export const CountUp = ({ value }: CountUpProps) => {
     let running = false;
     let intersection = 0;
     const write = (count: number, blur = 0) => {
-      digits.textContent = `${count}`;
+      digits.textContent = formatCount(count);
       digits.style.filter = blur > 0 ? `blur(${blur.toFixed(2)}px)` : `none`;
     };
     const pause = () => {
@@ -87,5 +89,5 @@ export const CountUp = ({ value }: CountUpProps) => {
     };
   }, [target]);
 
-  return <span ref={wrapper} className="mx-countup-value"><span className="mx-countup-sizer" aria-hidden="true">{target}</span><span ref={number} className="mx-countup-number" aria-hidden="true">0</span><span className="mx-countup-accessible">{target}</span></span>;
+  return <span ref={wrapper} className="mx-countup-value"><span className="mx-countup-sizer" aria-hidden="true">{formattedTarget}</span><span ref={number} className="mx-countup-number" aria-hidden="true">0</span><span className="mx-countup-accessible">{formattedTarget}</span></span>;
 };

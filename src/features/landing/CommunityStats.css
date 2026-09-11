@@ -4,7 +4,8 @@
 .mx-community-stat:nth-child(2){background:#ff8097}
 .mx-community-stat:nth-child(3){background:#ffadbd}
 .mx-community-stat:nth-child(4){background:#ffd7df}
-.mx-community-stat dt{display:flex;min-height:24px;align-items:center;justify-content:center;font:500 clamp(9px,1.1vw,14px)/1.5 Poppins_500Medium,Arial,sans-serif;letter-spacing:.04em;white-space:nowrap}
-.mx-community-stat dd{order:-1;max-width:100%;margin:0;font:500 clamp(22px,5.4vw,88px)/1 Poppins_500Medium,Arial,sans-serif;letter-spacing:-.04em}
-.mx-community-stats-preview{position:absolute;bottom:8px;left:0;width:100%;text-align:center;font:9px/1.5 Poppins_400Regular,Arial,sans-serif}
+.mx-community-stat dt{display:flex;min-height:24px;align-items:center;justify-content:center;gap:clamp(4px,.6vw,8px);font:500 clamp(9px,1.1vw,14px)/1.5 Poppins_500Medium,Arial,sans-serif;letter-spacing:.04em;white-space:nowrap}
+.mx-community-stat-icon{display:inline-flex;flex-shrink:0}
+.mx-community-xos{display:inline-flex;align-items:center;gap:1px}
+.mx-community-stat dd{order:-1;max-width:100%;margin:0;font:500 clamp(20px,5.4vw,88px)/1 Poppins_500Medium,Arial,sans-serif;letter-spacing:-.04em}
 @media(max-width:699px){.mx-community-stats{margin-top:48px}}
