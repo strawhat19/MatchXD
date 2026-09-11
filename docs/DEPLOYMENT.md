@@ -1,6 +1,6 @@
 # MatchXD Deployment Guide
 
-MatchXD currently runs as a local prototype. This repository does not configure a deployment target, EAS build profiles, production authentication, a backend, or live payments. Exporting or packaging the app preserves those local-demo behaviors; it does not create a connected dating service.
+MatchXD currently runs as a local prototype. The project is linked to [@strawhat19/matchxd on Expo](https://expo.dev/accounts/strawhat19/projects/matchxd) and its GitHub repository. Web export and Vercel configuration are prepared; see [Deploy Expo To Web](deploy-expo-app-to-web.md) for the current hosting status, completed steps, and automatic deployment setup. EAS build profiles, production authentication, a backend, and live payments are not configured. Exporting or packaging the app preserves its local-demo behaviors; it does not create a connected dating service.
 
 For local setup, see [Getting Started](GETTING_STARTED.md). See [Development](DEVELOPMENT.md) for project configuration and checks, [Verification](VERIFICATION.md) for recorded results and limitations, and the [Implementation Plan](IMPLEMENTATION_PLAN.md) for the proposed connected-service architecture.
 
@@ -15,13 +15,13 @@ npx serve -s dist
 
 The export script writes the web bundle to `dist`. The `serve` command may offer to download the preview utility. It previews the export locally; neither command publishes the site or connects a backend.
 
-The web configuration in [app.config.ts](../app.config.ts) uses `output: single`. Configure the eventual web host to serve the app entry for client routes so direct links and page refreshes reach the application. Deploy the exported `dist` directory only after configuring that route fallback and completing the relevant release checks.
+The web configuration in [app.config.ts](../app.config.ts) uses `output: single`. [vercel.json](../vercel.json) defines the install/build commands, `dist` output, and client-route fallback. See [Deploy Expo To Web](deploy-expo-app-to-web.md) for hosting eligibility, connection status, and verification before relying on a public deployment.
 
 ## Standalone Mobile Builds
 
 Standalone builds and store submissions have not been configured or produced by this prototype.
 
-1. Create or link an Expo project, install the development client when needed, and configure EAS Build. Review the iOS bundle identifier and Android package in [app.config.ts](../app.config.ts), then add development, preview, and production profiles to `eas.json`. Those profiles do not currently exist. Follow the [EAS setup guide](https://docs.expo.dev/build/setup/).
+1. Use the linked Expo project, install the development client when needed, and configure EAS Build. Review the iOS bundle identifier and Android package in [app.config.ts](../app.config.ts), then add development, preview, and production profiles to `eas.json`. Those profiles do not currently exist. Follow the [EAS setup guide](https://docs.expo.dev/build/setup/).
 2. Configure an Android preview profile to produce an APK for direct device installation; production Play distribution normally uses an AAB. Build with the selected EAS profile and install its artifact. See the [Android APK guide](https://docs.expo.dev/build-reference/apk/).
 3. Windows can request iOS cloud builds. Local iOS compilation and the iOS simulator require macOS and Xcode. Signed physical-iPhone cloud builds normally need Apple Developer membership and the appropriate registered devices or distribution method. Add signing credentials during this phase.
 

@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 .local-tools/
 android/
 ios/
+
+# Local Vercel project settings
+.vercel/

@@ -185,7 +185,7 @@ export const LandingScreen = () => {
           <View style={styles.invitation}><Txt size={34} weight="bold" color={ink} style={{ textAlign: `center`, letterSpacing: -1.4 }}>Your next hello{`\n`}could be a good one.</Txt><Txt size={14} color={ink} style={{ textAlign: `center` }}>Start with {PLANS.free.daily} free XOs every day.</Txt><Button label="Find Your People" icon="arrow-right" onPress={() => router.push(`/sign-in`)} style={styles.heroButton} /></View>
         </View>
       </LinearGradient>
-      <PricingComparison tableLegend={false} />
+      <PricingComparison instructions={false} />
       <View style={[styles.footer, { backgroundColor: colors.surface, paddingBottom: Math.max(32, insets.bottom + 20) }]}>
         <View style={styles.footerInner}>
           <BrandMark size={29} />

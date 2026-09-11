@@ -45,6 +45,7 @@ The app uses Expo, React Native, TypeScript, and Expo Router. Shared domain logi
 | [XO Economy](docs/XO_ECONOMY.md) | Plans, prices, action limits, balances, and messaging rules |
 | [Development](docs/DEVELOPMENT.md) | Project structure, configuration, and verification commands |
 | [Deployment](docs/DEPLOYMENT.md) | Web hosting, standalone builds, connected services, launch preparation, and cost planning |
+| [Deploy Expo To Web](docs/deploy-expo-app-to-web.md) | Expo and GitHub linkage, web build settings, hosting status, and automatic updates from main |
 | [Verification](docs/VERIFICATION.md) | Recorded results, known limitations, and unverified behavior |
 | [Implementation Plan](docs/IMPLEMENTATION_PLAN.md) | Product scope and integration roadmap |
 

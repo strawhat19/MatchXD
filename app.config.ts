@@ -3,11 +3,13 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: `MatchXD`,
   slug: `matchxd`,
+  owner: `strawhat19`,
   scheme: `matchxd`,
   version: `0.1.0`,
   orientation: `portrait`,
   userInterfaceStyle: `automatic`,
   icon: `./assets/brand/icon.png`,
+  extra: { eas: { projectId: `b06e5192-7c43-448a-83c3-2a819dce899e` } },
   ios: { supportsTablet: true, bundleIdentifier: `com.matchxd.app` },
   web: { bundler: `metro`, output: `single`, favicon: `./assets/brand/icon.png` },
   android: {

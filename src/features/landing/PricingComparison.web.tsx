@@ -4,13 +4,13 @@ import { XoCopy } from '../../components/XoToken';
 import { PLANS, PLAN_ORDER } from '../../config/plans';
 import { comparisonCellFor, PLAN_LIMITS_NOTE, PLAN_COMPARISON_ROWS, PLAN_COMPARISON_NOTE, PLAN_COMPARISON_INTRO, PLAN_COMPARISON_TITLE, PLAN_COMPARISON_CURRENCY_NOTE } from '../../config/planComparison';
 
-export const PricingComparison = ({ children, tableLegend = true }: { children?: ReactNode; tableLegend?: boolean }) => {
+export const PricingComparison = ({ children, instructions = false }: { children?: ReactNode; instructions?: boolean }) => {
   const id = useId();
   return <section className="mx-comparison" aria-labelledby={`${id}-heading`}>
     <div className="mx-comparison-heading"><div><span className="mx-comparison-eyebrow mx-reveal mx-reveal-item">THE GOOD STUFF, SIDE BY SIDE</span><h3 className="mx-reveal mx-reveal-item" id={`${id}-heading`}>{PLAN_COMPARISON_TITLE}</h3><p className="mx-reveal mx-reveal-item">{PLAN_COMPARISON_INTRO}</p></div></div>
     {children}
-    <span className="mx-comparison-scroll-hint" id={`${id}-scroll`}><span aria-hidden="true">↔</span> Scroll to compare all four plans</span>
-    <div className="mx-comparison-scroll" role="region" aria-label="Plan comparison table" aria-describedby={tableLegend ? `${id}-scroll ${id}-limits ${id}-note ${id}-currency-note` : `${id}-scroll ${id}-limits`} tabIndex={0}>
+    {instructions ? <span className="mx-comparison-scroll-hint" id={`${id}-scroll`}><span aria-hidden="true">↔</span> Scroll to compare all four plans</span> : null}
+    <div className="mx-comparison-scroll" role="region" aria-label="Plan comparison table" aria-describedby={instructions ? `${id}-scroll ${id}-limits ${id}-note ${id}-currency-note` : undefined} tabIndex={0}>
       <table className="mx-comparison-table">
         <caption className="mx-comparison-sr">Included services, separate daily action limits, and XO costs by MatchXD plan. Matched chats are free and unlimited. Prices are shown in the plan cards above.</caption>
         <colgroup><col className="mx-comparison-feature-col" />{PLAN_ORDER.map(plan => <col key={plan} className="mx-comparison-plan-col" />)}</colgroup>
@@ -24,6 +24,6 @@ export const PricingComparison = ({ children, tableLegend = true }: { children?:
         </tr>)}</tbody>
       </table>
     </div>
-    <div className="mx-comparison-notes"><p id={`${id}-limits`}><XoCopy size={13}>{PLAN_LIMITS_NOTE}</XoCopy></p>{tableLegend ? <><p className="mx-comparison-legend"><span><b aria-hidden="true">✓</b> Included</span><span><b aria-hidden="true">—</b> Not included</span><span><XoCopy size={13}>XO costs shown per use</XoCopy></span></p><p id={`${id}-note`}><XoCopy size={13}>{PLAN_COMPARISON_NOTE}</XoCopy></p><p id={`${id}-currency-note`}><XoCopy size={13}>{PLAN_COMPARISON_CURRENCY_NOTE}</XoCopy></p></> : null}</div>
+    {instructions ? <div className="mx-comparison-notes"><p id={`${id}-limits`}><XoCopy size={13}>{PLAN_LIMITS_NOTE}</XoCopy></p><p className="mx-comparison-legend"><span><b aria-hidden="true">✓</b> Included</span><span><b aria-hidden="true">—</b> Not included</span><span><XoCopy size={13}>XO costs shown per use</XoCopy></span></p><p id={`${id}-note`}><XoCopy size={13}>{PLAN_COMPARISON_NOTE}</XoCopy></p><p id={`${id}-currency-note`}><XoCopy size={13}>{PLAN_COMPARISON_CURRENCY_NOTE}</XoCopy></p></div> : null}
   </section>;
 };
