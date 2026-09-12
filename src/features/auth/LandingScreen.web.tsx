@@ -64,6 +64,7 @@ export const LandingScreen = () => {
   const privacy = useRef<HTMLDialogElement>(null);
   const deviceNodes = useRef<(HTMLDivElement | null)[]>([]);
   const phase = useRef(0);
+  const entranceProgress = useRef(0);
   const sparkScroll = useRef<{ start: number; target: number } | null>(null);
   const [reduced, setReduced] = useState(() => typeof window !== `undefined` && window.matchMedia(`(prefers-reduced-motion: reduce)`).matches);
   const authenticated = ready && !!state.session;
@@ -119,6 +120,7 @@ export const LandingScreen = () => {
     let sceneVersion = 0;
     let drawnVersion = -1;
     let previousProgress = -1;
+    let previousEntranceProgress = -1;
     let previouslyVisible = false;
     let viewportHeight = scrollArea.clientHeight;
     let trackHeight = track.offsetHeight;
@@ -162,24 +164,30 @@ export const LandingScreen = () => {
       const progress = reduced || !visible || !settling ? targetProgress : displayedProgress + (targetProgress - displayedProgress) * (1 - Math.exp(-delta / 55));
       displayedProgress = progress;
       const motionProgress = reduced ? Number(progress >= .5) : progress;
+      if (reduced || motionProgress >= .88) entranceProgress.current = 1;
+      else if (visible) entranceProgress.current = clamp(entranceProgress.current + delta / 1400);
+      const entering = entranceProgress.current < 1;
+      const phoneProgress = Math.max(motionProgress, .88 - entranceProgress.current * .5);
+      const phoneGather = smooth((phoneProgress - .38) / .5);
       const gather = smooth((motionProgress - .38) / .5);
       const rise = smooth(motionProgress / .38);
-      const changed = progress !== previousProgress || visible !== previouslyVisible || sceneVersion !== drawnVersion;
-      if (!reduced && visible && progress < .38) phase.current += delta * .0001;
-      const spread = 1 - gather;
+      const changed = progress !== previousProgress || visible !== previouslyVisible || sceneVersion !== drawnVersion || entranceProgress.current !== previousEntranceProgress;
+      if (!reduced && visible && !entering && progress < .38) phase.current += delta * .0001;
+      const spread = 1 - phoneGather;
       const mobile = width < 700;
       const baseScale = mobile ? Math.min(.79, width / 460) : Math.min(.92, height / 880);
       const revealedScale = Math.min(baseScale, height * .47 / 716, width * (mobile ? 1.75 : .95) / 1432);
       const orbitScale = baseScale + (revealedScale - baseScale) * rise;
       const focusHeight = mobile ? Math.max(0, focusBottom - focusTop) : height * .66;
       const focusY = mobile ? (focusTop + focusBottom) / 2 : height * .51;
-      const scale = orbitScale * spread + Math.min(mobile ? .87 : 1.02, focusHeight / 582.4) * gather;
+      const scale = orbitScale * spread + Math.min(mobile ? .87 : 1.02, focusHeight / 582.4) * phoneGather;
       const radius = 410 * orbitScale * spread;
       const startY = introBottom + (mobile ? 80 : 64) + 716 * baseScale;
       const orbitY = startY + (height * .51 - startY) * rise;
-      const centerY = orbitY * spread + focusY * gather;
+      const entranceOffset = 410 * orbitScale * smooth(1 - entranceProgress.current);
+      const centerY = (orbitY - entranceOffset) * (1 - gather) + focusY * gather;
       if (centerIcon.current && changed) {
-        const iconFade = 1 - smooth(gather / .55);
+        const iconFade = 1 - smooth(phoneGather / .55);
         const iconInView = centerY + 85 * orbitScale > 0 && centerY - 85 * orbitScale < height;
         centerIcon.current.style.transform = `translate(-50%, -50%) translate3d(0, ${centerY.toFixed(2)}px, 0) scale(${orbitScale.toFixed(4)})`;
         centerIcon.current.style.opacity = `${iconFade}`;
@@ -188,7 +196,7 @@ export const LandingScreen = () => {
       }
       deviceNodes.current.forEach((node, index) => {
         if (!node) return;
-        const fade = index === 0 ? 1 : 1 - smooth((motionProgress - .48) / .34);
+        const fade = index === 0 ? 1 : 1 - smooth((phoneProgress - .48) / .34);
         if (changed) node.style.opacity = `${fade}`;
         if (fade < .01 || !visible) {
           if (node.style.visibility !== `hidden`) node.style.visibility = `hidden`;
@@ -218,15 +226,16 @@ export const LandingScreen = () => {
         ending.current.style.visibility = motionProgress < .71 ? `hidden` : `visible`;
       }
       if (changed) {
-        const nextPhase = progress < .38 ? `orbit` : progress < .88 ? `gather` : `focus`;
+        const nextPhase = entering ? `enter` : progress < .38 ? `orbit` : progress < .88 ? `gather` : `focus`;
         if (scene.dataset.phase !== nextPhase) scene.dataset.phase = nextPhase;
         scene.style.setProperty(`--journey-progress`, `${progress}`);
       }
       if (!scene.dataset.ready) scene.dataset.ready = `true`;
       previousProgress = progress;
+      previousEntranceProgress = entranceProgress.current;
       previouslyVisible = visible;
       drawnVersion = sceneVersion;
-      if (!reduced && visible && (progress < .38 || settling)) frame = requestAnimationFrame(draw);
+      if (!reduced && visible && (entering || progress < .38 || settling)) frame = requestAnimationFrame(draw);
     };
     const schedule = () => { if (!frame) { previousTime = performance.now(); frame = requestAnimationFrame(draw); } };
     const measure = () => {
