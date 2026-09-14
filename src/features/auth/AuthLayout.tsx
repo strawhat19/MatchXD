@@ -132,7 +132,7 @@ export const AuthLayout = ({ mode, children, contentKey }: { children: ReactNode
   const storyContent = <View style={[styles.storyContent, { padding: wide ? width < 1240 ? 30 : 44 : formPadding, paddingTop: wide ? 32 : 20, minHeight: wide ? undefined : Math.min(740, availableHeight) }]}>
     {wide ? <Row style={{ justifyContent: `space-between`, gap: 10 }}>{homeLink}<View style={styles.agePill}><Txt size={10} weight={`medium`} color={theme.muted}>18+ COMMUNITY</Txt></View></Row> : null}
     <View style={[styles.storyCenter, !wide && { paddingVertical: 18 }]}>
-      <View nativeID={`auth-carousel`} onLayout={carousel.onLayout} {...carousel.panHandlers} style={[{ overflow: `hidden` }, carousel.webStyle]}>
+      <View nativeID={`auth-carousel`} onLayout={carousel.onLayout} style={{ overflow: `hidden` }}>
         {carousel.width ? <Animated.View pointerEvents={`none`} style={carousel.railStyle}>{[slides[slides.length - 1], ...slides, slides[0]].map((item, position) => <View key={`${item.id}-${position}`} accessibilityElementsHidden={position !== index + 1} importantForAccessibility={position === index + 1 ? `auto` : `no-hide-descendants`} style={{ width: carousel.width }}><FeatureSlide slide={item} width={width} height={height} contentWidth={carousel.width} /></View>)}</Animated.View> : <FeatureSlide slide={slide} width={width} height={height} contentWidth={Math.max(240, width - formPadding * 2)} />}
       </View>
     </View>
@@ -144,10 +144,11 @@ export const AuthLayout = ({ mode, children, contentKey }: { children: ReactNode
       {wide ? <><View style={{ height: 1, backgroundColor: theme.divider }} /><Txt size={11} color={theme.muted} style={{ minHeight: 33 }}>{slide.detail}</Txt></> : <Button icon={`arrow-down`} label={mode === `sign-in` ? `Continue To Sign In` : `Set Up My Profile`} onPress={scrollToForm} />}
     </View>
   </View>;
-  const story = <View nativeID={`auth-story`} style={[styles.storyColumn, { width: wide ? Math.min(720, width * .46) : `100%`, borderRightWidth: wide ? 1 : 0, borderBottomWidth: wide ? 0 : 1, borderBottomColor: theme.border }]}>
+  // The whole story panel handles dragging; only the slide viewport measures the rail width.
+  const story = <View nativeID={`auth-story`} {...carousel.panHandlers} style={[styles.storyColumn, carousel.webStyle, { width: wide ? Math.min(720, width * .46) : `100%`, borderRightWidth: wide ? 1 : 0, borderBottomWidth: wide ? 0 : 1, borderBottomColor: theme.border }]}>
     <LinearGradient colors={theme.gradient} style={StyleSheet.absoluteFill} />
     <View pointerEvents={`none`} style={styles.largeOrbit} /><View pointerEvents={`none`} style={styles.smallOrbit} />
-    {wide ? <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>{storyContent}</ScrollView> : storyContent}
+    {wide ? <ScrollView showsVerticalScrollIndicator={false} style={carousel.webStyle} contentContainerStyle={{ flexGrow: 1 }}>{storyContent}</ScrollView> : storyContent}
   </View>;
   const form = <View ref={formTarget} nativeID={`auth-form`} tabIndex={-1} onLayout={event => { if (!wide) formOffset.current = event.nativeEvent.layout.y; }} style={{ flexGrow: 1, width: `100%`, padding: formPadding, paddingTop: wide ? 26 : 32, justifyContent: `center`, minHeight: wide ? undefined : availableHeight, backgroundColor: dark ? colors.bg : colors.surface }}><View style={{ gap: 24, width: `100%`, maxWidth: mode === `sign-in` ? 490 : 600, alignSelf: `center`, paddingVertical: wide ? 8 : 12 }}>{children}</View></View>;
 
