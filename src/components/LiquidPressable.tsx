@@ -28,13 +28,13 @@ export const LiquidPressable = ({ fill, style, backFill, children, disabled, onL
   }, [disabled, progress, backProgress]);
 
   return <Pressable {...props} disabled={disabled} onLayout={event => { width.set(event.nativeEvent.layout.width); height.set(event.nativeEvent.layout.height); onLayout?.(event); }} onPressIn={event => { animate(true); onPressIn?.(event); }} onPressOut={event => { animate(false); onPressOut?.(event); }} style={state => [typeof style === `function` ? style(state) : style, styles.surface]}>
-    {backFill ? <Animated.View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" pointerEvents="none" style={[styles.wave, backWave]}><Svg width="100%" height="100%" viewBox="0 0 200 100" preserveAspectRatio="none"><Path d="M0 12Q25 0 50 12T100 12T150 12T200 12V100H0Z" fill={backFill} /></Svg></Animated.View> : null}
-    <Animated.View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" pointerEvents="none" style={[styles.wave, wave]}><Svg width="100%" height="100%" viewBox="0 0 200 100" preserveAspectRatio="none"><Path d="M0 12Q25 0 50 12T100 12T150 12T200 12V100H0Z" fill={fill} /></Svg></Animated.View>
+    {backFill ? <Animated.View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.wave, backWave]}><Svg width="100%" height="100%" viewBox="0 0 200 100" preserveAspectRatio="none"><Path d="M0 12Q25 0 50 12T100 12T150 12T200 12V100H0Z" fill={backFill} /></Svg></Animated.View> : null}
+    <Animated.View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.wave, wave]}><Svg width="100%" height="100%" viewBox="0 0 200 100" preserveAspectRatio="none"><Path d="M0 12Q25 0 50 12T100 12T150 12T200 12V100H0Z" fill={fill} /></Svg></Animated.View>
     {children}
   </Pressable>;
 };
 
 const styles = StyleSheet.create({
   surface: { overflow: `hidden` },
-  wave: { bottom: -1, left: `-50%`, width: `200%`, height: `140%`, position: `absolute` },
+  wave: { bottom: -1, left: `-50%`, width: `200%`, height: `140%`, pointerEvents: `none`, position: `absolute` },
 });

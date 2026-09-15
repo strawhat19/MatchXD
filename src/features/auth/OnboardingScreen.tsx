@@ -47,8 +47,7 @@ export const OnboardingScreen = () => {
     });
     return () => cancelAnimationFrame(frame);
   }, [step]);
-  if (!state.session) return <Redirect href={`/sign-in`} />;
-  if (state.session.onboarded) return <Redirect href={`/discover`} />;
+  if (state.session?.onboarded) return <Redirect href={`/discover`} />;
   const blocked = busy || photoBusy;
   const clearError = (field: keyof FieldErrors) => { setErrors(current => ({ ...current, [field]: undefined })); setError(``); };
   const changeStep = (index: number) => {
@@ -82,9 +81,15 @@ export const OnboardingScreen = () => {
     setBusy(true);
     setError(``);
     Keyboard.dismiss();
-    const result = act({ type: `save-user`, profile: { dob, interests, photos: [photo], name: name.trim(), city: city.trim(), bio: bio.trim() }, complete: true });
+    const sessionResult = state.session ? null : act({ type: `start-session`, role: `member` });
+    const result = sessionResult?.ok === false ? sessionResult : act({ type: `save-user`, profile: { dob, interests, photos: [photo], name: name.trim(), city: city.trim(), bio: bio.trim() }, complete: true });
     if (result.ok) router.replace(`/discover`);
-    else { setError(result.message ?? `Profile Could Not Be Saved — Try Again`); saving.current = false; setBusy(false); }
+    else {
+      if (sessionResult?.ok) { act({ type: `sign-out` }); dismissNotice(); }
+      setError(result.message ?? `Profile Could Not Be Saved — Try Again`);
+      saving.current = false;
+      setBusy(false);
+    }
   };
   const leave = () => {
     if (blocked) return;

@@ -5,6 +5,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Txt, Row, Button } from '../../components/ui';
 import { BrandMark } from '../../components/BrandMark';
+import { SymbolIcon } from '../../components/SymbolIcon';
 import { Link, router, type LinkProps } from 'expo-router';
 import { ProfilePhoto } from '../../components/ProfilePhoto';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -60,7 +61,7 @@ const ConversationPreview = () => {
     <View style={styles.conversationCard}>
       <Row style={{ paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: theme.subtleBorder }}><View style={styles.chatAvatar}><ProfilePhoto photo="maya" /></View><View style={{ gap: 1 }}><Txt size={16} weight="semibold" color={theme.ink}>Maya</Txt><Txt size={11} color={theme.muted}>Start with something you share</Txt></View><View style={{ marginLeft: `auto` }}><Icon name="heart" size={18} color={theme.coral} /></View></Row>
       <View style={styles.receivedMessage}><Txt size={12} color={theme.ink}>The important question: coffee walk or a tiny bookshop?</Txt></View>
-      <View style={styles.sentMessage}><Txt size={12} color={theme.ink}>Why choose? Coffee on the way to the bookshop ☕</Txt></View>
+      <View style={[styles.sentMessage, { gap: 4, flexDirection: `row`, alignItems: `flex-end` }]}><Txt size={12} color={theme.ink} style={{ flexShrink: 1 }}>Why choose? Coffee on the way to the bookshop</Txt><SymbolIcon name={`coffee`} size={16} /></View>
       <Row style={{ gap: 4, paddingLeft: 6 }}>{[0, 1, 2].map(dot => <View key={dot} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: theme.typing }} />)}</Row>
     </View>
     <Row style={styles.wingmateCard}><View style={styles.wingmateIcon}><Icon name="zap" size={20} color={theme.coral} /></View><View style={{ flex: 1, gap: 2 }}><Txt size={12} weight="semibold" color={theme.ink}>Meet Your MXO Wingmate</Txt><Txt size={11} color={theme.muted}>A little help with your first hello</Txt></View></Row>
@@ -133,7 +134,7 @@ export const AuthLayout = ({ mode, children, contentKey }: { children: ReactNode
     {wide ? <Row style={{ justifyContent: `space-between`, gap: 10 }}>{homeLink}<View style={styles.agePill}><Txt size={10} weight={`medium`} color={theme.muted}>18+ COMMUNITY</Txt></View></Row> : null}
     <View style={[styles.storyCenter, !wide && { paddingVertical: 18 }]}>
       <View nativeID={`auth-carousel`} onLayout={carousel.onLayout} style={{ overflow: `hidden` }}>
-        {carousel.width ? <Animated.View pointerEvents={`none`} style={carousel.railStyle}>{[slides[slides.length - 1], ...slides, slides[0]].map((item, position) => <View key={`${item.id}-${position}`} accessibilityElementsHidden={position !== index + 1} importantForAccessibility={position === index + 1 ? `auto` : `no-hide-descendants`} style={{ width: carousel.width }}><FeatureSlide slide={item} width={width} height={height} contentWidth={carousel.width} /></View>)}</Animated.View> : <FeatureSlide slide={slide} width={width} height={height} contentWidth={Math.max(240, width - formPadding * 2)} />}
+        {carousel.width ? <Animated.View style={[carousel.railStyle, { pointerEvents: `none` }]}>{[slides[slides.length - 1], ...slides, slides[0]].map((item, position) => <View key={`${item.id}-${position}`} accessibilityElementsHidden={position !== index + 1} importantForAccessibility={position === index + 1 ? `auto` : `no-hide-descendants`} style={{ width: carousel.width }}><FeatureSlide slide={item} width={width} height={height} contentWidth={carousel.width} /></View>)}</Animated.View> : <FeatureSlide slide={slide} width={width} height={height} contentWidth={Math.max(240, width - formPadding * 2)} />}
       </View>
     </View>
     <View style={{ gap: wide ? 18 : 14 }}>
@@ -147,7 +148,7 @@ export const AuthLayout = ({ mode, children, contentKey }: { children: ReactNode
   // The whole story panel handles dragging; only the slide viewport measures the rail width.
   const story = <View nativeID={`auth-story`} {...carousel.panHandlers} style={[styles.storyColumn, carousel.webStyle, { width: wide ? Math.min(720, width * .46) : `100%`, borderRightWidth: wide ? 1 : 0, borderBottomWidth: wide ? 0 : 1, borderBottomColor: theme.border }]}>
     <LinearGradient colors={theme.gradient} style={StyleSheet.absoluteFill} />
-    <View pointerEvents={`none`} style={styles.largeOrbit} /><View pointerEvents={`none`} style={styles.smallOrbit} />
+    <View style={[styles.largeOrbit, { pointerEvents: `none` }]} /><View style={[styles.smallOrbit, { pointerEvents: `none` }]} />
     {wide ? <ScrollView showsVerticalScrollIndicator={false} style={carousel.webStyle} contentContainerStyle={{ flexGrow: 1 }}>{storyContent}</ScrollView> : storyContent}
   </View>;
   const form = <View ref={formTarget} nativeID={`auth-form`} tabIndex={-1} onLayout={event => { if (!wide) formOffset.current = event.nativeEvent.layout.y; }} style={{ flexGrow: 1, width: `100%`, padding: formPadding, paddingTop: wide ? 26 : 32, justifyContent: `center`, minHeight: wide ? undefined : availableHeight, backgroundColor: dark ? colors.bg : colors.surface }}><View style={{ gap: 24, width: `100%`, maxWidth: mode === `sign-in` ? 490 : 600, alignSelf: `center`, paddingVertical: wide ? 8 : 12 }}>{children}</View></View>;

@@ -1,4 +1,5 @@
 import './SparkButton.css';
+import { Icon } from '../../components/Icon';
 import { useTypingWord } from './useTypingWord';
 import type { SparkButtonProps } from './SparkButton.types';
 import { useRef, useState, useEffect, type CSSProperties } from 'react';
@@ -43,6 +44,6 @@ export const SparkButton = ({ onPress, active = true, className = `mx-pill mx-pi
 
   return <button ref={button} className={`${className} mx-spark-button`} style={{ '--reveal-delay': `${revealDelay}ms` } as CSSProperties} onClick={onPress} aria-label={`Find your ${word}`} data-typing-phase={phase} data-typing-active={running}>
     <span className="mx-pill-label mx-spark-label" aria-hidden="true">Find your<span className="mx-spark-slot"><span className="mx-spark-sizer">person</span><span className="mx-spark-word">{[...text].map((letter, index) => <span key={`${word}-${index}`} className="mx-spark-letter">{letter}</span>)}<span className="mx-spark-caret" /></span></span></span>
-    <span aria-hidden="true">↗</span>
+    <span className="mx-pill-icon" aria-hidden="true"><Icon name="arrow-up-right" color="currentColor" size={23} /></span>
   </button>;
 };

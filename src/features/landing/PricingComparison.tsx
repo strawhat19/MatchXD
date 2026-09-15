@@ -2,13 +2,14 @@ import type { ReactNode } from 'react';
 import { Txt } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 import { PLANS, PLAN_ORDER } from '../../config/plans';
+import { SymbolIcon } from '../../components/SymbolIcon';
 import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { comparisonCellFor, PLAN_LIMITS_NOTE, PLAN_COMPARISON_ROWS, PLAN_COMPARISON_NOTE, PLAN_COMPARISON_INTRO, PLAN_COMPARISON_TITLE, PLAN_COMPARISON_CURRENCY_NOTE, type PlanComparisonCell } from '../../config/planComparison';
 
 const ink = `#17191F`;
 const muted = `#62606B`;
 const accent = `#A92341`;
-const ComparisonValue = ({ cell, daily }: { cell: PlanComparisonCell; daily: boolean }) => cell.kind === `value` ? <View style={styles.value}><Txt size={daily ? 26 : 14} weight="semibold" color={daily ? accent : ink}>{cell.label}</Txt>{cell.detail ? <Txt size={10} color={muted}>{cell.detail}</Txt> : null}</View> : cell.kind === `included` ? <View style={styles.check}><Icon name="check" size={15} color={accent} /></View> : <Txt size={17} color={muted}>—</Txt>;
+const ComparisonValue = ({ cell, daily }: { cell: PlanComparisonCell; daily: boolean }) => cell.kind === `value` ? <View style={styles.value}><Txt size={daily ? 26 : 14} weight="semibold" color={daily ? accent : ink}>{cell.label}</Txt>{cell.detail ? <Txt size={10} color={muted}>{cell.detail}</Txt> : null}</View> : cell.kind === `included` ? <View style={styles.check}><Icon name="check" size={15} color={accent} /></View> : <Icon name={`minus`} size={17} color={muted} />;
 
 export const PricingComparison = ({ children, instructions = false }: { children?: ReactNode; instructions?: boolean }) => {
   const { width } = useWindowDimensions();
@@ -18,7 +19,7 @@ export const PricingComparison = ({ children, instructions = false }: { children
     <View style={styles.inner}>
       <View style={styles.heading}><Txt size={10} weight="medium" color={accent} style={styles.eyebrow}>THE GOOD STUFF, SIDE BY SIDE</Txt><Txt accessibilityRole="header" size={27} weight="semibold" color={ink} style={styles.title}>{PLAN_COMPARISON_TITLE}</Txt><Txt size={12} color={muted}>{PLAN_COMPARISON_INTRO}</Txt></View>
       {children}
-      {instructions && width - 48 < tableWidth ? <View style={styles.hint}><Icon name="move" size={16} color={accent} /><Txt size={11} color={muted}>Swipe to compare all four plans</Txt></View> : null}
+      {instructions && width - 48 < tableWidth ? <View style={styles.hint}><SymbolIcon name={`arrow-left-right`} size={20} color={accent} /><Txt size={11} color={muted}>Swipe to compare all four plans</Txt></View> : null}
       <View style={styles.tableFrame}>
         <ScrollView horizontal showsHorizontalScrollIndicator persistentScrollbar nestedScrollEnabled bounces={false} style={styles.scroller} accessibilityLabel={instructions ? `Plan services comparison. Swipe horizontally to compare Free, M, MX, and MXD.` : `Plan services comparison`}>
           <View style={{ width: tableWidth }}>
@@ -33,7 +34,7 @@ export const PricingComparison = ({ children, instructions = false }: { children
           </View>
         </ScrollView>
       </View>
-      {instructions ? <View style={styles.notes}><Txt size={10} color={muted}>{PLAN_LIMITS_NOTE}</Txt><View style={styles.legend}><View style={styles.legendItem}><Icon name="check" size={13} color={accent} /><Txt size={10} color={muted}>Included</Txt></View><Txt size={10} color={muted}>— Not included</Txt><Txt size={10} color={muted}>XO costs shown per use</Txt></View><Txt size={10} color={muted}>{PLAN_COMPARISON_NOTE}</Txt><Txt size={10} color={muted}>{PLAN_COMPARISON_CURRENCY_NOTE}</Txt></View> : null}
+      {instructions ? <View style={styles.notes}><Txt size={10} color={muted}>{PLAN_LIMITS_NOTE}</Txt><View style={styles.legend}><View style={styles.legendItem}><Icon name="check" size={13} color={accent} /><Txt size={10} color={muted}>Included</Txt></View><View style={styles.legendItem}><Icon name={`minus`} size={13} color={muted} /><Txt size={10} color={muted}>Not included</Txt></View><Txt size={10} color={muted}>XO costs shown per use</Txt></View><Txt size={10} color={muted}>{PLAN_COMPARISON_NOTE}</Txt><Txt size={10} color={muted}>{PLAN_COMPARISON_CURRENCY_NOTE}</Txt></View> : null}
     </View>
   </View>;
 };

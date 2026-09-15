@@ -1,7 +1,9 @@
 import './PricingComparison.css';
 import { useId, type ReactNode } from 'react';
+import { Icon } from '../../components/Icon';
 import { XoCopy } from '../../components/XoToken';
 import { PLANS, PLAN_ORDER } from '../../config/plans';
+import { SymbolIcon } from '../../components/SymbolIcon';
 import { comparisonCellFor, PLAN_LIMITS_NOTE, PLAN_COMPARISON_ROWS, PLAN_COMPARISON_NOTE, PLAN_COMPARISON_INTRO, PLAN_COMPARISON_TITLE, PLAN_COMPARISON_CURRENCY_NOTE } from '../../config/planComparison';
 
 export const PricingComparison = ({ children, instructions = false }: { children?: ReactNode; instructions?: boolean }) => {
@@ -9,7 +11,7 @@ export const PricingComparison = ({ children, instructions = false }: { children
   return <section className="mx-comparison" aria-labelledby={`${id}-heading`}>
     <div className="mx-comparison-heading"><div><span className="mx-comparison-eyebrow mx-reveal mx-reveal-item">THE GOOD STUFF, SIDE BY SIDE</span><h3 className="mx-reveal mx-reveal-item" id={`${id}-heading`}>{PLAN_COMPARISON_TITLE}</h3><p className="mx-reveal mx-reveal-item">{PLAN_COMPARISON_INTRO}</p></div></div>
     {children}
-    {instructions ? <span className="mx-comparison-scroll-hint" id={`${id}-scroll`}><span aria-hidden="true">↔</span> Scroll to compare all four plans</span> : null}
+    {instructions ? <span className="mx-comparison-scroll-hint" id={`${id}-scroll`}><span aria-hidden="true"><SymbolIcon name={`arrow-left-right`} size={20} color={`currentColor`} /></span> Scroll to compare all four plans</span> : null}
     <div className="mx-comparison-scroll" role="region" aria-label="Plan comparison table" aria-describedby={instructions ? `${id}-scroll ${id}-limits ${id}-note ${id}-currency-note` : undefined} tabIndex={0}>
       <table className="mx-comparison-table">
         <caption className="mx-comparison-sr">Included services, separate daily action limits, and XO costs by MatchXD plan. Matched chats are free and unlimited. Prices are shown in the plan cards above.</caption>
@@ -19,11 +21,11 @@ export const PricingComparison = ({ children, instructions = false }: { children
           <th scope="row"><span><XoCopy size={14}>{row.label}</XoCopy></span><small><XoCopy size={12}>{row.description}</XoCopy></small></th>
           {PLAN_ORDER.map(plan => {
             const cell = comparisonCellFor(row, plan);
-            return <td key={plan}>{cell.kind === `value` ? <span className="mx-comparison-value"><XoCopy size={16}>{cell.label}</XoCopy>{cell.detail ? <small><XoCopy size={12}>{cell.detail}</XoCopy></small> : null}</span> : <><span aria-hidden="true" className={cell.kind === `included` ? `mx-comparison-check` : `mx-comparison-dash`}>{cell.kind === `included` ? `✓` : `—`}</span><span className="mx-comparison-sr">{cell.label}</span></>}</td>;
+            return <td key={plan}>{cell.kind === `value` ? <span className="mx-comparison-value"><XoCopy size={16}>{cell.label}</XoCopy>{cell.detail ? <small><XoCopy size={12}>{cell.detail}</XoCopy></small> : null}</span> : <><span aria-hidden="true" className={cell.kind === `included` ? `mx-comparison-check` : `mx-comparison-dash`}><Icon name={cell.kind === `included` ? `check` : `minus`} color="currentColor" size={cell.kind === `included` ? 15 : 17} /></span><span className="mx-comparison-sr">{cell.label}</span></>}</td>;
           })}
         </tr>)}</tbody>
       </table>
     </div>
-    {instructions ? <div className="mx-comparison-notes"><p id={`${id}-limits`}><XoCopy size={13}>{PLAN_LIMITS_NOTE}</XoCopy></p><p className="mx-comparison-legend"><span><b aria-hidden="true">✓</b> Included</span><span><b aria-hidden="true">—</b> Not included</span><span><XoCopy size={13}>XO costs shown per use</XoCopy></span></p><p id={`${id}-note`}><XoCopy size={13}>{PLAN_COMPARISON_NOTE}</XoCopy></p><p id={`${id}-currency-note`}><XoCopy size={13}>{PLAN_COMPARISON_CURRENCY_NOTE}</XoCopy></p></div> : null}
+    {instructions ? <div className="mx-comparison-notes"><p id={`${id}-limits`}><XoCopy size={13}>{PLAN_LIMITS_NOTE}</XoCopy></p><p className="mx-comparison-legend"><span><b aria-hidden="true"><Icon name="check" color="currentColor" size={13} /></b> Included</span><span><b aria-hidden="true"><Icon name="minus" color="currentColor" size={13} /></b> Not included</span><span><XoCopy size={13}>XO costs shown per use</XoCopy></span></p><p id={`${id}-note`}><XoCopy size={13}>{PLAN_COMPARISON_NOTE}</XoCopy></p><p id={`${id}-currency-note`}><XoCopy size={13}>{PLAN_COMPARISON_CURRENCY_NOTE}</XoCopy></p></div> : null}
   </section>;
 };

@@ -1,11 +1,11 @@
 import { memo } from 'react';
 import { View } from 'react-native';
 import { Txt } from '../../components/ui';
-import Svg, { Path } from 'react-native-svg';
 import { PreviewPhoto } from './PreviewPhoto';
 import { palettes } from '../../theme/tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon, IconName } from '../../components/Icon';
+import { SymbolIcon } from '../../components/SymbolIcon';
 import { previewPeople, type PreviewPerson } from './phoneOrbit';
 import { AppIcon, ConnectedX } from '../../components/BrandMark';
 
@@ -65,7 +65,7 @@ const DiscoverPreview = ({ s, person }: { s: number; person: PreviewPerson }) =>
   <View style={{ flexDirection: `row`, alignItems: `center`, justifyContent: `center`, gap: 12 * s, paddingTop: 2 * s }}>
     <View style={{ width: 44 * s, height: 44 * s, alignItems: `center`, justifyContent: `center`, borderWidth: .8 * s, borderColor: colors.border, borderRadius: 22 * s, backgroundColor: colors.surface }}><Icon name={`rotate-ccw`} size={13 * s} color={colors.muted} /></View>
     <View style={{ width: 44 * s, height: 44 * s, alignItems: `center`, justifyContent: `center`, borderWidth: .8 * s, borderColor: colors.border, borderRadius: 22 * s, backgroundColor: colors.surface }}><ConnectedX size={23 * s} /></View>
-    <View style={{ width: 44 * s, height: 44 * s, alignItems: `center`, justifyContent: `center`, borderRadius: 22 * s, backgroundColor: colors.accent, boxShadow: `0 ${4 * s}px ${12 * s}px rgba(249,78,103,.23)` }}><Svg width={28 * s} height={28 * s} viewBox="0 0 32 32"><Path fill="#FFFFFF" d="M16 28.2C15.4 28.2 14.8 28 14.3 27.6L5.4 19.2C2.7 16.7 1.3 14.1 1.3 11.2C1.3 6.6 4.7 3.2 9.1 3.2C12 3.2 14.1 4.4 15.3 6Q16 6.9 16.7 6C17.9 4.4 20 3.2 22.9 3.2C27.3 3.2 30.7 6.6 30.7 11.2C30.7 14.1 29.3 16.7 26.6 19.2L17.7 27.6C17.2 28 16.6 28.2 16 28.2Z" /></Svg></View>
+    <View style={{ width: 44 * s, height: 44 * s, alignItems: `center`, justifyContent: `center`, borderRadius: 22 * s, backgroundColor: colors.accent, boxShadow: `0 ${4 * s}px ${12 * s}px rgba(249,78,103,.23)` }}><SymbolIcon name={`heart`} size={28 * s} color={`#FFFFFF`} /></View>
     <View style={{ width: 44 * s, height: 44 * s, alignItems: `center`, justifyContent: `center`, borderWidth: .8 * s, borderColor: colors.border, borderRadius: 22 * s, backgroundColor: colors.surface }}><Icon name={`star`} size={14 * s} color={colors.accent} /></View>
   </View>
 </View>;

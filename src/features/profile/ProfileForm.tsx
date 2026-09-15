@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { MediaIntro } from './MediaIntro';
 import { ageOf } from '../../domain/matching';
+import { Icon } from '../../components/Icon';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../theme/ThemeProvider';
 import * as DocumentPicker from 'expo-document-picker';
@@ -82,9 +83,9 @@ export const ProfileForm = ({ profile, onSave, onCancel, admin, submitLabel = `S
           <ProfilePhoto photo={photo} style={styles.photo} />
           <View style={[styles.photoNumber, { backgroundColor: colors.surface }]}><Txt size={11} weight={`bold`}>{index === 0 ? `Cover` : `${index + 1}`}</Txt></View>
           <Row style={styles.photoActions}>
-            <Pressable accessibilityRole={`button`} accessibilityLabel={`Move Photo ${index + 1} Earlier`} disabled={!index} onPress={() => changePhotoOrder(index, -1)} style={[styles.miniButton, { backgroundColor: colors.raised, opacity: index ? 1 : 0.35 }]}><Txt>←</Txt></Pressable>
-            <Pressable accessibilityRole={`button`} accessibilityLabel={`Remove Photo ${index + 1}`} onPress={() => update({ photos: draft.photos.filter((_, i) => i !== index) })} style={[styles.miniButton, { backgroundColor: colors.raised }]}><Txt color={colors.danger}>×</Txt></Pressable>
-            <Pressable accessibilityRole={`button`} accessibilityLabel={`Move Photo ${index + 1} Later`} disabled={index === draft.photos.length - 1} onPress={() => changePhotoOrder(index, 1)} style={[styles.miniButton, { backgroundColor: colors.raised, opacity: index === draft.photos.length - 1 ? 0.35 : 1 }]}><Txt>→</Txt></Pressable>
+            <Pressable accessibilityRole={`button`} accessibilityLabel={`Move Photo ${index + 1} Earlier`} disabled={!index} onPress={() => changePhotoOrder(index, -1)} style={[styles.miniButton, { backgroundColor: colors.raised, opacity: index ? 1 : 0.35 }]}><Icon name={`arrow-left`} size={18} /></Pressable>
+            <Pressable accessibilityRole={`button`} accessibilityLabel={`Remove Photo ${index + 1}`} onPress={() => update({ photos: draft.photos.filter((_, i) => i !== index) })} style={[styles.miniButton, { backgroundColor: colors.raised }]}><Icon name={`x`} size={18} color={colors.danger} /></Pressable>
+            <Pressable accessibilityRole={`button`} accessibilityLabel={`Move Photo ${index + 1} Later`} disabled={index === draft.photos.length - 1} onPress={() => changePhotoOrder(index, 1)} style={[styles.miniButton, { backgroundColor: colors.raised, opacity: index === draft.photos.length - 1 ? 0.35 : 1 }]}><Icon name={`arrow-right`} size={18} /></Pressable>
           </Row>
         </View>)}
       </View>

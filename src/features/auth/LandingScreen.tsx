@@ -14,7 +14,7 @@ import { AppIcon, BrandMark } from '../../components/BrandMark';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { PricingComparison } from '../landing/PricingComparison';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Modal, View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { Modal, View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, { Easing, FadeInDown, Extrapolation, ReduceMotion, cancelAnimation, interpolate, runOnJS, useAnimatedReaction, useAnimatedScrollHandler, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming, type SharedValue } from 'react-native-reanimated';
 
 const ink = `#17191F`;
@@ -64,7 +64,7 @@ const OrbitPhone = ({ index, width, phase, scroll, radius, revealEnd, revealScal
     };
   });
   const phone = orbitPhones[index];
-  return <Animated.View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.phone, { width, left: `50%`, marginLeft: -width / 2, marginTop: -width * 1.04 }, transform]}>
+  return <Animated.View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.phone, { width, left: `50%`, marginLeft: -width / 2, marginTop: -width * 1.04 }, transform]}>
     <PhonePreview width={width} model={phone.model} screen={phone.screen} person={phone.person} />
   </Animated.View>;
 };
@@ -159,7 +159,7 @@ export const LandingScreen = () => {
     <Animated.ScrollView ref={scrollRef} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ flexGrow: 1 }}>
       <LinearGradient colors={[`#F45B73`, `#F4506B`, `#EE3E66`]} locations={[0, .5, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
         <View style={{ height: heroHeight, overflow: `hidden` }}>
-          <Animated.View pointerEvents={introVisible ? `auto` : `none`} accessibilityElementsHidden={!introVisible} importantForAccessibility={introVisible ? `auto` : `no-hide-descendants`} onLayout={event => setHeadingHeight(event.nativeEvent.layout.height)} style={[styles.heroHeading, introStyle]}>
+          <Animated.View accessibilityElementsHidden={!introVisible} importantForAccessibility={introVisible ? `auto` : `no-hide-descendants`} onLayout={event => setHeadingHeight(event.nativeEvent.layout.height)} style={[styles.heroHeading, introStyle, { pointerEvents: introVisible ? `auto` : `none` }]}>
             <EntryReveal><Txt size={11} weight="semibold" color={ink} style={styles.eyebrow}>PREMIUM FEATURES, REASONABLE PRICING</Txt></EntryReveal>
             <View style={{ width: `100%`, maxWidth: 1020 }}>
               <EntryReveal delay={180}><Txt size={titleSize} weight="bold" color="#FFFFFF" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={mobile ? .85 : .65} style={[titleStyle, { textAlign: `center` }]}>You <Txt size={titleSize} weight="bold" color={ink} style={titleStyle}>will</Txt> love</Txt></EntryReveal>
@@ -172,7 +172,7 @@ export const LandingScreen = () => {
             <SparkButton active={introVisible && !privacyOpen} onPress={() => router.push(`/sign-in`)} style={styles.heroButton} />
           </Animated.View>
           <Animated.View style={[styles.phoneStage, { top: stageCenter }, stickyStage]}>
-            <Animated.View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" pointerEvents="none" style={[styles.centerIcon, { width: iconSize, height: iconSize, marginLeft: -iconSize / 2, marginTop: -iconSize / 2 }, centerIconStyle]}><AppIcon size={iconSize} /></Animated.View>
+            <Animated.View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.centerIcon, { width: iconSize, height: iconSize, marginLeft: -iconSize / 2, marginTop: -iconSize / 2 }, centerIconStyle]}><AppIcon size={iconSize} /></Animated.View>
             {orbitPhones.map((phone, index) => <OrbitPhone key={`${phone.model}-${index}`} index={index} width={phoneWidth} phase={phase} scroll={scroll} radius={orbitRadius} revealEnd={revealEnd} revealScale={revealScale} revealRadius={revealRadius} collapseStart={collapseStart} collapseEnd={collapseEnd} reducedMotion={reducedMotion} />)}
           </Animated.View>
           <View style={[styles.gatheredCopy, { top: copyTop }]}><Txt size={29} weight="bold" color={ink} style={{ textAlign: `center`, letterSpacing: -.9 }}>Different paths.{`\n`}One place to connect.</Txt><Txt size={13} color={ink} style={{ textAlign: `center`, marginTop: 8 }}>Discover. Find common ground. Say hello.</Txt></View>
@@ -194,7 +194,7 @@ export const LandingScreen = () => {
           <View style={{ height: 1, backgroundColor: colors.border, alignSelf: `stretch` }} />
           <Txt size={12} color={colors.muted}>For adults 18+ · Two paths. One connection.</Txt>
           <Txt size={11} color={colors.muted}>App Store & Google Play · Coming Later</Txt>
-          <Link href="https://piratechs.com" style={{ color: colors.accentText, fontSize: 12, paddingVertical: 8 }}>Designed by Piratechs ↗</Link>
+          <Link href="https://piratechs.com" asChild><Pressable accessibilityRole={`link`} style={{ paddingVertical: 8 }}><Row style={{ gap: 4 }}><Txt size={12} color={colors.accentText}>Designed by Piratechs</Txt><Icon name={`arrow-up-right`} size={14} color={colors.accentText} /></Row></Pressable></Link>
         </View>
       </View>
     </Animated.ScrollView>
@@ -205,8 +205,8 @@ export const LandingScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  centerIcon: { top: 0, left: `50%`, zIndex: 0, position: `absolute` },
-  phone: { top: 0, position: `absolute`, alignItems: `center` },
+  centerIcon: { top: 0, left: `50%`, zIndex: 0, pointerEvents: `none`, position: `absolute` },
+  phone: { top: 0, pointerEvents: `none`, position: `absolute`, alignItems: `center` },
   phoneStage: { left: 0, right: 0, position: `absolute` },
   eyebrow: { textAlign: `center`, letterSpacing: 2 },
   heroHeading: { gap: 24, paddingTop: 40, paddingHorizontal: 16, alignItems: `center` },

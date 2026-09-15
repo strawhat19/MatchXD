@@ -1,8 +1,8 @@
 import { Icon } from '../../components/Icon';
 import { Txt, Row } from '../../components/ui';
 import { useTheme } from '../../theme/ThemeProvider';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { View, Pressable, StyleSheet } from 'react-native';
+import { SocialProviderIcon } from '../../components/SocialProviderIcon';
 
 const providers = [
   { name: `Google`, icon: `google`, color: `#4285F4` },
@@ -16,7 +16,7 @@ export const SocialSignInOptions = ({ compact = false }: { compact?: boolean }) 
   return <View style={{ gap: 12 }}>
     <View style={[styles.providers, compact && { gap: 8 }]}>
       {providers.map(provider => <Pressable key={provider.name} disabled accessibilityRole={`button`} accessibilityState={{ disabled: true }} accessibilityLabel={`${provider.name} Sign-In — Coming Soon`} style={[styles.provider, { borderColor: colors.border, backgroundColor: colors.surface }, !compact && provider.name === `Google` ? styles.google : null, compact ? styles.compact : null]}>
-        <FontAwesome size={compact ? 18 : 21} name={provider.icon} color={`color` in provider ? provider.color : colors.text} />
+        <SocialProviderIcon size={compact ? 18 : 21} name={provider.icon} color={`color` in provider ? provider.color : colors.text} />
         <Txt size={compact ? 11 : 13} weight={`medium`}>{!compact && provider.name === `Google` ? `Continue With Google` : provider.name}</Txt>
         {!compact && provider.name === `Google` ? <View style={[styles.badge, { backgroundColor: colors.raised }]}><Txt size={10} color={colors.muted}>Soon</Txt></View> : null}
       </Pressable>)}
