@@ -14,6 +14,7 @@ const statisticsLabels = [
 export const CommunityStats = ({ placeholders = false, statistics = PUBLIC_STATISTICS }: { placeholders?: boolean; statistics?: PublicStatistics }) => {
   const totals = placeholders ? PLACEHOLDER_PUBLIC_STATISTICS : statistics;
   return <section className="mx-community-stats" aria-label={placeholders ? `Sample community statistics` : `MatchXD community statistics`}>
+    {placeholders ? <p style={{ fontSize: 11, lineHeight: 1.7, marginBottom: 12 }}>Illustrative community preview · Sample numbers, not live users or activity.</p> : null}
     <dl className="mx-community-stats-row">{statisticsLabels.map(statistic => <div key={statistic.key} className="mx-community-stat"><dt>{statistic.key === `xoxos` ? <span className="mx-community-xos"><XoToken size={24} label={statistic.label} decorative={false} /><span aria-hidden="true">s</span></span> : <><span className="mx-community-stat-icon" aria-hidden="true"><Icon name={statistic.icon} size={16} color="#17191f" /></span><span>{statistic.label}</span></>}</dt><dd><CountUp value={totals[statistic.key]} /></dd></div>)}</dl>
   </section>;
 };

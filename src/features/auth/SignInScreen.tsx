@@ -30,16 +30,16 @@ export const SignInScreen = () => {
   return <AuthLayout mode={`sign-in`}>
     <View style={styles.stack}>
       <View style={styles.heading}>
-        <Txt size={11} weight={`semibold`} color={colors.accentText} style={styles.eyebrow}>A LITTLE HELLO. A LOT OF POSSIBILITY.</Txt>
+        <Txt size={11} weight={`semibold`} color={colors.accentText} style={styles.eyebrow}>LOVE THE COST OF LOVE.</Txt>
         <Txt size={38} weight={`bold`} accessibilityRole={`header`} style={styles.title}>{returning ? `Welcome back.` : `Your next hello.`}</Txt>
-        <Txt size={15} color={colors.muted}>{returning ? `Pick up where you left off. Your people, your pace.` : `Find your people. Share your story. See where a little chemistry takes you.`}</Txt>
+        <Txt size={15} color={colors.muted}>{returning ? `Thank you for helping shape MatchXD. Pick up your free preview where you left off.` : `An independent dating app, built by one developer. Join the free beta or express interest in founding access at $1/month later.`}</Txt>
       </View>
       <SocialSignInOptions />
-      <Row style={{ gap: 14 }}><View style={[styles.line, { backgroundColor: colors.border }]} /><Txt size={11} weight={`medium`} color={colors.muted}>OR TRY THE PREVIEW</Txt><View style={[styles.line, { backgroundColor: colors.border }]} /></Row>
+      <Row style={{ gap: 14 }}><View style={[styles.line, { backgroundColor: colors.border }]} /><Txt size={11} weight={`medium`} color={colors.muted}>{returning ? `CONTINUE YOUR FREE PREVIEW` : `JOIN & TRY THE FREE PREVIEW`}</Txt><View style={[styles.line, { backgroundColor: colors.border }]} /></Row>
       <View style={[styles.preview, { borderColor: colors.border, backgroundColor: colors.raised }]}>
         <Row><View style={[styles.previewIcon, { backgroundColor: colors.pale }]}><Icon name={returning ? `user-check` : `heart`} size={20} color={colors.accentText} /></View><View style={{ flex: 1, gap: 3 }}><Txt weight={`semibold`}>{returning ? `Continue As ${state.user.name}` : `Make Yourself At Home`}</Txt><Txt size={12} color={colors.muted}>{returning ? `Your saved profile is ready on this device.` : `Create a profile and explore MatchXD for free.`}</Txt></View></Row>
-        <Button icon={`arrow-right`} disabled={starting} onPress={() => begin(`member`)} label={starting ? `Opening MatchXD…` : returning ? `Continue On This Device` : `Create My Profile`} />
-        <Txt size={12} color={colors.muted}>This preview uses sample profiles and saves activity on this device. No password or social account is needed.</Txt>
+        <Button icon={`arrow-right`} disabled={starting} onPress={() => begin(`member`)} label={starting ? `Opening MatchXD…` : returning ? `Continue On This Device` : `Join MatchXD Free`} />
+        <Txt size={12} color={colors.muted}>Your signup and activity stay on this device. Explore sample profiles for free; no payment or subscription starts, whichever option you choose.</Txt>
       </View>
       {error ? <Txt color={colors.danger} accessibilityRole={`alert`}>{error}</Txt> : null}
       <Row style={{ justifyContent: `center`, gap: 7 }}><Icon name={`shield`} size={14} color={colors.muted} /><Txt size={12} color={colors.muted} style={{ flexShrink: 1 }}>For Adults 18+ · You Choose What You Share</Txt></Row>

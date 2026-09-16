@@ -5,13 +5,42 @@ import { PLANS, PLAN_ORDER } from '../../config/plans';
 import { SymbolIcon } from '../../components/SymbolIcon';
 import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { comparisonCellFor, PLAN_LIMITS_NOTE, PLAN_COMPARISON_ROWS, PLAN_COMPARISON_NOTE, PLAN_COMPARISON_INTRO, PLAN_COMPARISON_TITLE, PLAN_COMPARISON_CURRENCY_NOTE, type PlanComparisonCell } from '../../config/planComparison';
+import { SIGNUP_OPTIONS, SIGNUP_ORDER, SIGNUP_COMPARISON_ROWS, SIGNUP_COMPARISON_INTRO, SIGNUP_COMPARISON_TITLE } from '../../config/signupOptions';
+
+type ComparisonProps = { children?: ReactNode; instructions?: boolean };
 
 const ink = `#17191F`;
 const muted = `#62606B`;
 const accent = `#A92341`;
 const ComparisonValue = ({ cell, daily }: { cell: PlanComparisonCell; daily: boolean }) => cell.kind === `value` ? <View style={styles.value}><Txt size={daily ? 26 : 14} weight="semibold" color={daily ? accent : ink}>{cell.label}</Txt>{cell.detail ? <Txt size={10} color={muted}>{cell.detail}</Txt> : null}</View> : cell.kind === `included` ? <View style={styles.check}><Icon name="check" size={15} color={accent} /></View> : <Icon name={`minus`} size={17} color={muted} />;
 
-export const PricingComparison = ({ children, instructions = false }: { children?: ReactNode; instructions?: boolean }) => {
+export const PricingComparison = ({ variant = `beta`, ...props }: ComparisonProps & { variant?: `beta` | `plans` }) => variant === `plans` ? <PlansComparison {...props} /> : <BetaComparison {...props} />;
+
+const BetaComparison = ({ children, instructions = false }: ComparisonProps) => {
+  const { width } = useWindowDimensions();
+  const tableWidth = Math.max(440, Math.min(width - 48, 1180));
+  const labelWidth = tableWidth * .4;
+  return <View style={styles.section}>
+    <View style={styles.inner}>
+      <View style={styles.heading}><Txt size={10} weight="medium" color={accent} style={styles.eyebrow}>BE HERE AT THE BEGINNING</Txt><Txt accessibilityRole="header" size={27} weight="semibold" color={ink} style={styles.title}>{SIGNUP_COMPARISON_TITLE}</Txt><Txt size={12} color={muted}>{SIGNUP_COMPARISON_INTRO}</Txt></View>
+      {children}
+      {instructions && width - 48 < tableWidth ? <View style={styles.hint}><SymbolIcon name={`arrow-left-right`} size={20} color={accent} /><Txt size={11} color={muted}>Swipe to compare both ways to join</Txt></View> : null}
+      <View style={styles.tableFrame}>
+        <ScrollView horizontal showsHorizontalScrollIndicator persistentScrollbar nestedScrollEnabled bounces={false} style={styles.scroller} accessibilityLabel="Early access comparison. Swipe horizontally to compare beta and founding signup preferences.">
+          <View style={{ width: tableWidth }}>
+            <View style={[styles.row, styles.tableHead]}><View style={[styles.labelCell, { width: labelWidth }]}><Txt size={12} weight="semibold" color={ink}>What it means</Txt></View>{SIGNUP_ORDER.map(plan => <View key={plan} style={styles.planCell}><Txt accessibilityRole="header" size={14} weight="semibold" color={ink}>{SIGNUP_OPTIONS[plan].name}</Txt><Txt size={20} weight="semibold" color={ink} style={{ marginTop: 4, letterSpacing: -.5 }}>{SIGNUP_OPTIONS[plan].price}</Txt><Txt size={10} color={muted}>{plan === `founding` ? `USD / month, planned` : `USD / month`}</Txt></View>)}</View>
+            {SIGNUP_COMPARISON_ROWS.map((row, index) => <View key={row.id} style={[styles.row, { backgroundColor: row.id === `today` ? `#FFE8EF` : index % 2 ? `#FFF1F5` : `#FFF8FA`, borderBottomWidth: index === SIGNUP_COMPARISON_ROWS.length - 1 ? 0 : 1 }]}>
+              <View style={[styles.labelCell, { width: labelWidth }]}><Txt size={12} weight="medium" color={ink}>{row.label}</Txt><Txt size={10} color={muted} style={{ marginTop: 5 }}>{row.description}</Txt></View>
+              {SIGNUP_ORDER.map(plan => <View key={plan} accessible accessibilityLabel={`${SIGNUP_OPTIONS[plan].name}, ${row.label}: ${row[plan]}`} style={styles.planCell}><Txt size={row.id === `today` ? 26 : 14} weight="semibold" color={row.id === `today` ? accent : ink} style={{ textAlign: `center` }}>{row[plan]}</Txt></View>)}
+            </View>)}
+          </View>
+        </ScrollView>
+      </View>
+    </View>
+  </View>;
+};
+
+const PlansComparison = ({ children, instructions = false }: ComparisonProps) => {
   const { width } = useWindowDimensions();
   const tableWidth = Math.max(640, Math.min(width - 48, 1180));
   const labelWidth = tableWidth * .3;

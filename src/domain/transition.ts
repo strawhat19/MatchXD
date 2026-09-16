@@ -1,17 +1,19 @@
 import { ECONOMY } from '../config/economy';
 import { profileId, uniqueId } from './identity';
 import { hasTier, PLANS } from '../config/plans';
-import { initialState } from '../data/demoProfiles';
+import { createProfile, initialState } from '../data/demoProfiles';
 import { recommendLocally } from '../services/local/mxo';
 import { isProfile, preferencesError, profileError } from './validation';
-import { ledgerEntry, refreshWallet, spend, upgradeWallet } from './wallet';
+import { createWallet, ledgerEntry, refreshWallet, spend, upgradeWallet } from './wallet';
 import { Action, ActionResult, AppState, Attribute, Profile } from './types';
 import { canViewProfile, discoveryProfiles, matchesPreferences } from './matching';
 import { introductionAvailability, refreshDailyActions, remainingDailyAction, restoreActivityHistory } from './quotas';
+import { defaultProfileAvatar } from './avatars';
+import { activeSignupInterest, normalizeSignupContact, restoreSignupInterests, signupContactKey, signupInterestError } from './interest';
 
 export type Transition = { state: AppState; result: ActionResult };
 export const refreshState = (state: AppState, now = new Date()): AppState => {
-  state = restoreActivityHistory(state);
+  state = restoreSignupInterests(restoreActivityHistory(state));
   const wallet = refreshWallet(state.wallet, now);
   const dailyActions = refreshDailyActions(state.dailyActions, now);
   const incognito = state.settings.incognito && wallet.plan === `mxd`;
@@ -22,6 +24,10 @@ export const refreshState = (state: AppState, now = new Date()): AppState => {
   return { ...state, wallet, dailyActions, preferences: { ...state.preferences, attributes }, settings: { ...state.settings, incognito }, user: { ...state.user, incognito } };
 };
 const cleanProfile = (profile: Profile): Profile => ({ ...profile, name: profile.name.trim(), city: profile.city.trim(), job: profile.job.trim(), bio: profile.bio.trim(), interests: [...new Set(profile.interests.map(value => value.trim()).filter(Boolean))], links: profile.links.map(link => ({ label: link.label.trim(), url: link.url.trim() })) });
+const editableProfileChanges = (profile: Partial<Profile>) => {
+  const allowed: (keyof Profile)[] = [`name`, `dob`, `city`, `bio`, `job`, `photos`, `interests`, `attributes`, `links`, `directoryOptIn`, `voiceUri`, `videoUri`];
+  return Object.fromEntries(Object.entries(profile).filter(([key]) => allowed.includes(key as keyof Profile)));
+};
 const removeConnection = (state: AppState, profileId: string): AppState => ({ ...state, contactHistory: state.matches.includes(profileId) || state.messages.some(message => message.profileId === profileId) ? [...new Set([...state.contactHistory, profileId])] : state.contactHistory, matches: state.matches.filter(id => id !== profileId), messages: state.messages.filter(message => message.profileId !== profileId), user: { ...state.user, likedIds: state.user.likedIds.filter(id => id !== profileId) } });
 export const transition = (previous: AppState, action: Action, now = new Date()): Transition => {
   let state = refreshState(previous, now);
@@ -56,6 +62,52 @@ export const transition = (previous: AppState, action: Action, now = new Date())
     state = { ...state, onboardingComplete: onboarded, session: { role: action.role, onboarded } };
     return done();
   }
+  if (action.type === `complete-signup`) {
+    const interestError = signupInterestError(action.interest);
+    if (interestError) return fail(interestError);
+    if (!action.profile || typeof action.profile !== `object` || Array.isArray(action.profile)) return fail(`Check Your Profile Details`);
+    const contact = normalizeSignupContact(action.interest.contact)!;
+    const existing = state.signupInterests.find(interest => signupContactKey(interest.contact) === signupContactKey(contact));
+    const current = existing?.profileId === state.user.id;
+    const savedProfile = existing ? current ? state.user : state.profiles.find(profile => profile.id === existing.profileId) : undefined;
+    if (existing && !savedProfile) return fail(`This Local Signup Has No Saved Profile`);
+    const base = savedProfile || createProfile(state.nextProfileNumber, { name: ``, dob: ``, city: ``, bio: ``, photos: [defaultProfileAvatar] });
+    const candidate = { ...base, ...editableProfileChanges(action.profile), incognito: false };
+    if (!isProfile(candidate)) return fail(`Check Your Profile Details — Add A Name, City And Valid 18+ Date Of Birth`);
+    const error = profileError(candidate, now);
+    if (error) return fail(error);
+    const user = cleanProfile(candidate);
+    const at = now.toISOString();
+    const interest = {
+      id: existing?.id || uniqueId(`Signup`),
+      profileId: user.id,
+      contact,
+      plan: action.interest.plan,
+      feedback: (action.interest.feedback || ``).trim(),
+      createdAt: existing?.createdAt || at,
+      updatedAt: existing && Date.parse(existing.createdAt) > now.getTime() ? existing.createdAt : at,
+    };
+    // A second local test signup gets its own profile and empty activity. Earlier
+    // signups remain available locally without exposing their contact or feedback.
+    const profiles = state.profiles.filter(profile => profile.id !== user.id);
+    if (!current && activeSignupInterest(state)) profiles.push(state.user);
+    const fresh = initialState(now);
+    state = {
+      ...(current ? state : { ...fresh, settings: { ...fresh.settings, theme: state.settings.theme } }),
+      nextProfileNumber: savedProfile ? state.nextProfileNumber : state.nextProfileNumber + 1,
+      user,
+      profiles,
+      signupInterests: existing ? state.signupInterests.map(value => value.id === existing.id ? interest : value) : [...state.signupInterests, interest],
+      activeSignupInterestId: interest.id,
+      session: { role: state.session?.role === `owner` ? `owner` : `member`, onboarded: true },
+      onboardingComplete: true,
+      wallet: current && state.wallet.plan === `free` ? state.wallet : createWallet(now),
+      settings: { ...(current ? state.settings : { ...fresh.settings, theme: state.settings.theme }), discoverable: user.discoverable, incognito: false },
+      preferences: current ? { ...state.preferences, attributes: { ...state.preferences.attributes, ethnicity: [], height: [], salary: [] } } : fresh.preferences,
+      ...(!current ? { matches: [], messages: [], swipes: [], blocks: [], introductions: [], contactHistory: [] } : {}),
+    };
+    return done(`Thank You For Joining — Your ${interest.plan === `founding` ? `Founding` : `Beta`} Interest Is Saved Locally. Your Free Preview Is Ready; No Charge.`);
+  }
   if (!state.session && action.type === `save-settings`) {
     if (Object.keys(action.settings).some(key => key !== `theme`)) return fail(`Sign In To Change Privacy Settings`);
     const theme = action.settings.theme;
@@ -66,8 +118,7 @@ export const transition = (previous: AppState, action: Action, now = new Date())
   if (!state.session) return fail(`Sign In To Continue`);
   if (`operationId` in action && action.operationId && state.wallet.operations.includes(action.operationId)) return done(`This Action Was Already Applied`);
   if (action.type === `save-user`) {
-    const allowed: (keyof Profile)[] = [`name`, `dob`, `city`, `bio`, `job`, `photos`, `interests`, `attributes`, `links`, `directoryOptIn`, `voiceUri`, `videoUri`];
-    const changes = Object.fromEntries(Object.entries(action.profile).filter(([key]) => allowed.includes(key as keyof Profile)));
+    const changes = editableProfileChanges(action.profile);
     const candidate = { ...state.user, ...changes };
     if (!isProfile(candidate)) return fail(profileError(candidate, now) || `Check Your Profile Details`);
     const error = profileError(candidate, now);
@@ -214,7 +265,7 @@ export const transition = (previous: AppState, action: Action, now = new Date())
     }
     if (!target) return fail(`Profile Not Found`);
     state = removeConnection(state, target.id);
-    state = { ...state, profiles: state.profiles.filter(profile => profile.id !== target.id).map(profile => ({ ...profile, likedIds: profile.likedIds.filter(id => id !== target.id), blockedIds: profile.blockedIds.filter(id => id !== target.id) })), blocks: state.blocks.filter(id => id !== target.id), swipes: state.swipes.filter(swipe => swipe.profileId !== target.id), reports: state.reports.filter(report => report.profileId !== target.id), user: { ...state.user, blockedIds: state.user.blockedIds.filter(id => id !== target.id) }, mxoMessages: state.mxoMessages.map(message => ({ ...message, recommendations: message.recommendations?.filter(id => id !== target.id) })) };
+    state = { ...state, signupInterests: state.signupInterests.filter(interest => interest.profileId !== target.id), profiles: state.profiles.filter(profile => profile.id !== target.id).map(profile => ({ ...profile, likedIds: profile.likedIds.filter(id => id !== target.id), blockedIds: profile.blockedIds.filter(id => id !== target.id) })), blocks: state.blocks.filter(id => id !== target.id), swipes: state.swipes.filter(swipe => swipe.profileId !== target.id), reports: state.reports.filter(report => report.profileId !== target.id), user: { ...state.user, blockedIds: state.user.blockedIds.filter(id => id !== target.id) }, mxoMessages: state.mxoMessages.map(message => ({ ...message, recommendations: message.recommendations?.filter(id => id !== target.id) })) };
     return done(`Profile And Related Activity Deleted`);
   }
   return fail(`Unsupported Action`);

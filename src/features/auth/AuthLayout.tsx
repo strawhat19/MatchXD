@@ -35,9 +35,9 @@ const useStoryTheme = () => {
   return { theme: storyThemes[mode], styles: storyStyles[mode] };
 };
 const slides = [
-  { id: `discover`, label: `Find Your People`, title: `Your kind of\npeople. Finally.`, description: `From coffee walks to your next adventure, discover people who love the little things you do.`, detail: `Shared interests. A little spark. A real hello.` },
-  { id: `connect`, label: `Make The First Move`, title: `A little spark.\nA better hello.`, description: `Find your opening with your MXO wingmate, then keep the conversation going in one place.`, detail: `A helping hand when the right words get away.` },
-  { id: `control`, label: `Keep It Comfortable`, title: `Your profile.\nYour own pace.`, description: `Set your preferences, choose what you share, and use block or report whenever you need to.`, detail: `More room to be yourself, from day one.` },
+  { id: `discover`, label: `An Independent Choice`, title: `Your kind of\npeople. Finally.`, description: `Match Group owns Tinder, Hinge, Match and more. One solo developer is building MatchXD as an independent alternative, starting with your interest.`, detail: `A new choice in dating, shaped by the people who join early.` },
+  { id: `connect`, label: `A Fairer Way To Date`, title: `A little spark.\nA fairer start.`, description: `Ever felt you had to pay to be seen? The goal is premium-style features at a fair price, with honest matching that doesn't depend on what you spend.`, detail: `Don’t break your heart, or your wallet.` },
+  { id: `control`, label: `Help Shape MatchXD`, title: `Your profile.\nYour own pace.`, description: `Choose free beta or founding interest at a planned $1/month. No charges today. Both open the free preview, with your signup saved on this device.`, detail: `Thanks for being here. Your signup and optional feedback help shape what comes next.` },
 ] as const;
 
 const InterestPill = ({ icon, label }: { label: string; icon: `coffee` | `sun` | `music` }) => {

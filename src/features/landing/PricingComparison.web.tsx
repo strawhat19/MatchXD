@@ -5,10 +5,35 @@ import { XoCopy } from '../../components/XoToken';
 import { PLANS, PLAN_ORDER } from '../../config/plans';
 import { SymbolIcon } from '../../components/SymbolIcon';
 import { comparisonCellFor, PLAN_LIMITS_NOTE, PLAN_COMPARISON_ROWS, PLAN_COMPARISON_NOTE, PLAN_COMPARISON_INTRO, PLAN_COMPARISON_TITLE, PLAN_COMPARISON_CURRENCY_NOTE } from '../../config/planComparison';
+import { SIGNUP_OPTIONS, SIGNUP_ORDER, SIGNUP_COMPARISON_ROWS, SIGNUP_COMPARISON_INTRO, SIGNUP_COMPARISON_TITLE } from '../../config/signupOptions';
 
-export const PricingComparison = ({ children, instructions = false }: { children?: ReactNode; instructions?: boolean }) => {
+type ComparisonProps = { children?: ReactNode; instructions?: boolean };
+
+export const PricingComparison = ({ variant = `beta`, ...props }: ComparisonProps & { variant?: `beta` | `plans` }) => variant === `plans` ? <PlansComparison {...props} /> : <BetaComparison {...props} />;
+
+const BetaComparison = ({ children, instructions = false }: ComparisonProps) => {
   const id = useId();
-  return <section className="mx-comparison" aria-labelledby={`${id}-heading`}>
+  return <section className="mx-comparison mx-comparison-beta" aria-labelledby={`${id}-heading`}>
+    <div className="mx-comparison-heading"><div><span className="mx-comparison-eyebrow mx-reveal mx-reveal-item">BE HERE AT THE BEGINNING</span><h3 className="mx-reveal mx-reveal-item" id={`${id}-heading`}>{SIGNUP_COMPARISON_TITLE}</h3><p className="mx-reveal mx-reveal-item">{SIGNUP_COMPARISON_INTRO}</p></div></div>
+    {children}
+    {instructions ? <span className="mx-comparison-scroll-hint" id={`${id}-scroll`}><span aria-hidden="true"><SymbolIcon name={`arrow-left-right`} size={20} color={`currentColor`} /></span> Scroll to compare both ways to join</span> : null}
+    <div className="mx-comparison-scroll" role="region" aria-label="Early access comparison table" aria-describedby={instructions ? `${id}-scroll` : undefined} tabIndex={0}>
+      <table className="mx-comparison-table">
+        <caption className="mx-comparison-sr">Beta and founding signup preferences. Both use the free local preview now. Founding records interest in a proposed future one US dollar per month plan; no payment is collected.</caption>
+        <colgroup><col className="mx-comparison-feature-col" />{SIGNUP_ORDER.map(plan => <col key={plan} className="mx-comparison-plan-col" />)}</colgroup>
+        <thead><tr><th scope="col">What it means</th>{SIGNUP_ORDER.map(plan => <th scope="col" key={plan}>{SIGNUP_OPTIONS[plan].name}</th>)}</tr></thead>
+        <tbody>{SIGNUP_COMPARISON_ROWS.map(row => <tr key={row.id} className={row.id === `today` ? `mx-comparison-daily` : undefined}>
+          <th scope="row"><span>{row.label}</span><small>{row.description}</small></th>
+          {SIGNUP_ORDER.map(plan => <td key={plan}><span className="mx-comparison-value">{row[plan]}</span></td>)}
+        </tr>)}</tbody>
+      </table>
+    </div>
+  </section>;
+};
+
+const PlansComparison = ({ children, instructions = false }: ComparisonProps) => {
+  const id = useId();
+  return <section className="mx-comparison mx-comparison-plans" aria-labelledby={`${id}-heading`}>
     <div className="mx-comparison-heading"><div><span className="mx-comparison-eyebrow mx-reveal mx-reveal-item">THE GOOD STUFF, SIDE BY SIDE</span><h3 className="mx-reveal mx-reveal-item" id={`${id}-heading`}>{PLAN_COMPARISON_TITLE}</h3><p className="mx-reveal mx-reveal-item">{PLAN_COMPARISON_INTRO}</p></div></div>
     {children}
     {instructions ? <span className="mx-comparison-scroll-hint" id={`${id}-scroll`}><span aria-hidden="true"><SymbolIcon name={`arrow-left-right`} size={20} color={`currentColor`} /></span> Scroll to compare all four plans</span> : null}

@@ -56,6 +56,20 @@ export type Introduction = { profileId: string; operationId: string; at: string 
 export type Message = { id: string; profileId: string; sender: `self` | `profile`; text: string; at: string };
 export type Report = { id: string; profileId: string; reason: string; status: `open` | `resolved`; at: string };
 export type MxoMessage = { id: string; role: `user` | `assistant`; text: string; recommendations?: string[]; at: string };
+export type SignupPlanId = `beta` | `founding`;
+export type SignupInterestInput = { contact: string; plan: SignupPlanId; feedback?: string };
+export type SignupContact = { kind: `email` | `phone`; value: string };
+// Private signup details stay separate from the public, discoverable Profile.
+// A plan here records interest only; Wallet.plan remains the active entitlement.
+export type SignupInterest = {
+  id: string;
+  profileId: string;
+  contact: SignupContact;
+  plan: SignupPlanId;
+  feedback: string;
+  createdAt: string;
+  updatedAt: string;
+};
 export type AppState = {
   version: 1;
   nextProfileNumber: number;
@@ -63,6 +77,8 @@ export type AppState = {
   profiles: Profile[];
   session: { role: `member` | `owner`; onboarded: boolean } | null;
   onboardingComplete?: boolean;
+  signupInterests: SignupInterest[];
+  activeSignupInterestId: string | null;
   settings: Settings;
   preferences: Preferences;
   wallet: Wallet;
@@ -78,6 +94,7 @@ export type AppState = {
 };
 export type Action =
   | { type: `start-session`; role: `member` | `owner` }
+  | { type: `complete-signup`; profile: Partial<Profile>; interest: SignupInterestInput }
   | { type: `save-user`; profile: Partial<Profile>; complete?: boolean }
   | { type: `save-preferences`; preferences: Preferences }
   | { type: `save-settings`; settings: Partial<Settings> }

@@ -44,6 +44,8 @@ export const initialState = (now = new Date()): AppState => {
     profiles,
     session: null,
     onboardingComplete: false,
+    signupInterests: [],
+    activeSignupInterestId: null,
     settings: { theme: `light`, incognito: false, discoverable: true, notifications: { push: false, email: false, sms: false } },
     preferences: { ageMin: 18, ageMax: 99, distance: 100, hiddenNames: [], attributes: emptyAttributes() },
     wallet: createWallet(now),

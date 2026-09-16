@@ -2,6 +2,7 @@ import { ageOf } from './matching';
 import { OPTIONS } from '../config/app';
 import { isProfileAvatar, isStoredProfilePhoto } from './avatars';
 import { AppState, Attribute, Preferences, Profile } from './types';
+import { isSignupInterest, signupContactKey } from './interest';
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === `object` && value !== null && !Array.isArray(value);
 const strings = (value: unknown): value is string[] => Array.isArray(value) && value.every(item => typeof item === `string`);
@@ -52,6 +53,12 @@ export const isAppState = (value: unknown): value is AppState => {
   const selfId = value.user.id;
   if (value.session !== null && (!isRecord(value.session) || ![`member`, `owner`].includes(String(value.session.role)) || typeof value.session.onboarded !== `boolean`)) return false;
   if (value.onboardingComplete !== undefined && typeof value.onboardingComplete !== `boolean`) return false;
+  if (!Array.isArray(value.signupInterests) || !value.signupInterests.every(isSignupInterest)) return false;
+  const signupInterests = value.signupInterests;
+  const allProfileIds = new Set(profiles.map(profile => profile.id));
+  if (signupInterests.some(interest => !allProfileIds.has(interest.profileId))) return false;
+  if (new Set(signupInterests.map(interest => interest.id)).size !== signupInterests.length || new Set(signupInterests.map(interest => interest.profileId)).size !== signupInterests.length || new Set(signupInterests.map(interest => signupContactKey(interest.contact))).size !== signupInterests.length) return false;
+  if (value.activeSignupInterestId !== null && (typeof value.activeSignupInterestId !== `string` || !signupInterests.some(interest => interest.id === value.activeSignupInterestId && interest.profileId === selfId))) return false;
   const settings = value.settings;
   if (!isRecord(settings) || ![`light`, `dark`, `system`].includes(String(settings.theme)) || typeof settings.incognito !== `boolean` || typeof settings.discoverable !== `boolean`) return false;
   if (!isRecord(settings.notifications) || [`push`, `email`, `sms`].some(key => typeof (settings.notifications as Record<string, unknown>)[key] !== `boolean`)) return false;

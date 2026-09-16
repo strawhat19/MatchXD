@@ -87,15 +87,20 @@
 .mx-privacy-art>span{font-size:9px;letter-spacing:.7px;color:#ffb9c6}
 .mx-pricing{border-top:1px solid #17191f20;padding-top:70px}
 .mx-pricing.mx-section{max-width:none;padding-left:0;padding-right:0}
-.mx-pricing>.mx-pricing-lead,.mx-pricing>.mx-comparison{width:calc(100% - 110px);max-width:1220px;margin-left:auto;margin-right:auto}
-@media(max-width:1050px){.mx-pricing>.mx-pricing-lead,.mx-pricing>.mx-comparison{width:calc(100% - 60px)}}
-@media(max-width:699px){.mx-pricing>.mx-pricing-lead,.mx-pricing>.mx-comparison{width:calc(100% - 44px)}}
+.mx-pricing>.mx-pricing-lead,.mx-pricing>.mx-pricing-content{width:calc(100% - 110px);max-width:1220px;margin-left:auto;margin-right:auto}
+@media(max-width:1050px){.mx-pricing>.mx-pricing-lead,.mx-pricing>.mx-pricing-content{width:calc(100% - 60px)}}
+@media(max-width:699px){.mx-pricing>.mx-pricing-lead,.mx-pricing>.mx-pricing-content{width:calc(100% - 44px)}}
+.mx-pricing-content{margin-top:42px}
+.mx-pricing-content .mx-comparison{margin-top:0}
+.mx-pricing-content .mx-pricing-note{margin:0 0 22px;text-align:left}
+@media(max-width:699px){.mx-pricing-content{margin-top:32px}}
 .mx-pricing-lead{display:grid;grid-template-columns:1fr 1.45fr;gap:70px;align-items:center}
 .mx-big-number{font-family:Poppins_500Medium,Arial,sans-serif;font-size:clamp(150px,18vw,250px);letter-spacing:-17px;line-height:.92;color:#ee4264;text-align:center}
 .mx-big-number>.mx-number-caption{display:block;font-family:Poppins_500Medium,Arial,sans-serif;letter-spacing:3px;font-size:11px;margin-top:20px;color:#17191f}
 .mx-pricing h2{font-size:42px;font-family:Poppins_500Medium,Arial,sans-serif;letter-spacing:-1.8px;line-height:1.16;margin:18px 0}
 .mx-pricing-lead p{font-size:13px;line-height:1.9;max-width:480px;color:#565b64;margin-bottom:23px}
 .mx-plan-line{display:grid;grid-template-columns:repeat(4,1fr);margin-top:66px;border:1px solid #17191f26;border-radius:18px;overflow:hidden}
+.mx-plan-line-beta{grid-template-columns:repeat(2,minmax(0,1fr))}
 .mx-plan{cursor:pointer;min-width:0;color:#17191f;background:transparent;border:0;padding:25px 26px;text-align:left;display:flex;flex-direction:column;gap:12px;transition:background .2s}
 .mx-plan+.mx-plan{border-left:1px solid #17191f26}
 .mx-plan:is(:hover,:focus-within){background:#ffe0e6}

@@ -2,6 +2,7 @@ import { isAppState } from '../domain/validation';
 import { AppState, Profile } from '../domain/types';
 import { restoreActivityHistory } from '../domain/quotas';
 import { defaultProfileAvatar, isStoredProfilePhoto } from '../domain/avatars';
+import { restoreSignupInterests } from '../domain/interest';
 
 const legacyWelcome = `Hi, I’m MXO, your local demo connection guide. Tell me what matters to you — try “someone who likes hiking and coffee” or “ages 25 to 35 within 10 miles.” I use only what you share and the demo profiles.`;
 const currentWelcome = `Hi, I’m MXO, your connection guide. Tell me what matters to you — try “someone who likes hiking and coffee” or “ages 25 to 35 within 10 miles.”`;
@@ -49,7 +50,7 @@ export const migrateSnapshot = (raw: string): AppState => {
     const profiles = [parsed.user, ...parsed.profiles];
     if (profiles.every(profile => profile && typeof profile === `object` && `number` in profile && Number.isSafeInteger(profile.number))) Object.assign(parsed, { nextProfileNumber: Math.max(...profiles.map(profile => profile.number)) + 1 });
   }
-  const restored = restoreActivityHistory(parsed as AppState);
+  const restored = restoreSignupInterests(restoreActivityHistory(parsed as AppState));
   if (!isAppState(restored)) throw new Error(`The Saved Data Failed Validation`);
   return migrateV1Copy({ ...restored, onboardingComplete: restored.onboardingComplete || !!restored.session?.onboarded });
 };

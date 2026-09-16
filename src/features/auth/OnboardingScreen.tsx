@@ -2,7 +2,10 @@ import { AuthLayout } from './AuthLayout';
 import { INTERESTS } from '../../config/app';
 import { Icon } from '../../components/Icon';
 import { ageOf } from '../../domain/matching';
-import { Redirect, router } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import type { SignupPlanId } from '../../domain/types';
+import { signupContactError, signupFeedbackLimit } from '../../domain/interest';
+import { SIGNUP_OPTIONS, SIGNUP_ORDER } from '../../config/signupOptions';
 import { useApp } from '../../state/AppProvider';
 import { useRef, useState, useEffect } from 'react';
 import { useTheme } from '../../theme/ThemeProvider';
@@ -14,7 +17,7 @@ import { View, Platform, Keyboard, Pressable, StyleSheet, AccessibilityInfo } fr
 
 const steps = [`The Basics`, `Your Look`, `Your Vibe`];
 const stepReveal = FadeIn.duration(220).reduceMotion(ReduceMotion.System);
-type FieldErrors = { name?: string; dob?: string; city?: string; photo?: string; agreed?: string };
+type FieldErrors = { name?: string; dob?: string; city?: string; contact?: string; photo?: string; agreed?: string };
 const formatBirthDate = (value: string) => {
   const digits = value.replace(/\D/g, ``).slice(0, 8);
   return [digits.slice(0, 4), digits.slice(4, 6), digits.slice(6, 8)].filter(Boolean).join(`-`);
@@ -25,6 +28,10 @@ export const OnboardingScreen = () => {
   const heading = useRef<View>(null);
   const { colors } = useTheme();
   const { state, act, dismissNotice } = useApp();
+  const { intent } = useLocalSearchParams<{ intent?: string | string[] }>();
+  const [plan, setPlan] = useState<SignupPlanId>(intent === `founding` ? `founding` : `beta`);
+  const [contact, setContact] = useState(``);
+  const [feedback, setFeedback] = useState(``);
   const [step, setStep] = useState(0);
   const previousStep = useRef(step);
   const [name, setName] = useState(``);
@@ -58,7 +65,9 @@ export const OnboardingScreen = () => {
   };
   const basicsErrors = (): FieldErrors => {
     const age = ageOf(dob);
+    const contactError = signupContactError(contact);
     return {
+      ...(contactError ? { contact: contactError } : {}),
       ...(!city.trim() ? { city: `Enter Your City` } : {}),
       ...(!name.trim() ? { name: `Enter Your First Name` } : {}),
       ...(!Number.isFinite(age) || age < 18 || age > 120 ? { dob: `Enter A Valid Birth Date — You Must Be 18 Or Older` } : {}),
@@ -81,12 +90,10 @@ export const OnboardingScreen = () => {
     setBusy(true);
     setError(``);
     Keyboard.dismiss();
-    const sessionResult = state.session ? null : act({ type: `start-session`, role: `member` });
-    const result = sessionResult?.ok === false ? sessionResult : act({ type: `save-user`, profile: { dob, interests, photos: [photo], name: name.trim(), city: city.trim(), bio: bio.trim() }, complete: true });
+    const result = act({ type: `complete-signup`, profile: { dob, interests, photos: [photo], name: name.trim(), city: city.trim(), bio: bio.trim() }, interest: { contact, plan, feedback } });
     if (result.ok) router.replace(`/discover`);
     else {
-      if (sessionResult?.ok) { act({ type: `sign-out` }); dismissNotice(); }
-      setError(result.message ?? `Profile Could Not Be Saved — Try Again`);
+      setError(result.message ?? `Signup Could Not Be Saved — Try Again`);
       saving.current = false;
       setBusy(false);
     }
@@ -99,22 +106,25 @@ export const OnboardingScreen = () => {
   };
   return <AuthLayout mode={`sign-up`} contentKey={step}>
     <View style={styles.stack}>
-      <Row style={{ justifyContent: `space-between`, flexWrap: `wrap`, gap: 5 }}><Txt size={11} color={colors.accentText} weight={`semibold`} style={styles.eyebrow}>MAKE YOURSELF AT HOME</Txt><Pressable disabled={blocked} accessibilityRole={`button`} accessibilityLabel={`Back To Sign In`} accessibilityState={{ disabled: blocked }} onPress={leave} style={styles.textButton}><Txt size={12} weight={`medium`} color={colors.muted}>Back To Sign In</Txt></Pressable></Row>
+      <Row style={{ justifyContent: `space-between`, flexWrap: `wrap`, gap: 5 }}><Txt size={11} color={colors.accentText} weight={`semibold`} style={styles.eyebrow}>HELP SHAPE MATCHXD</Txt><Pressable disabled={blocked} accessibilityRole={`button`} accessibilityLabel={`Back To Sign In`} accessibilityState={{ disabled: blocked }} onPress={leave} style={styles.textButton}><Txt size={12} weight={`medium`} color={colors.muted}>Back To Sign In</Txt></Pressable></Row>
       <Row style={{ gap: 10 }}>{steps.map((label, index) => <Pressable key={label} disabled={blocked || index > step} accessibilityRole={`button`} accessibilityLabel={`Step ${index + 1}: ${label}`} accessibilityState={{ selected: step === index, disabled: blocked || index > step }} onPress={() => changeStep(index)} style={{ flex: 1, gap: 9, paddingVertical: 7 }}><View style={[styles.progress, { backgroundColor: index <= step ? colors.accent : colors.border }]} /><Row style={{ gap: 7 }}><View style={[styles.stepNumber, { backgroundColor: index <= step ? colors.pale : colors.raised }]}>{index < step ? <Icon name={`check`} size={12} color={colors.accentText} /> : <Txt size={10} weight={`semibold`} color={index === step ? colors.accentText : colors.muted}>{index + 1}</Txt>}</View><Txt size={11} color={index === step ? colors.text : colors.muted} weight={index === step ? `semibold` : `regular`} style={{ flexShrink: 1 }}>{label}</Txt></Row></Pressable>)}</Row>
       <Animated.View key={step} entering={stepReveal} style={styles.stack}>
-        <View ref={heading} tabIndex={-1} style={{ gap: 8 }}><Txt size={32} weight={`bold`} accessibilityRole={`header`} style={styles.title}>{[`Start with you.`, `Make it feel like you.`, `Give them a little more you.`][step]}</Txt><Txt color={colors.muted}>{[`A few basics. The rest is a conversation.`, `A fresh photo or an avatar. Your first impression, your choice.`, `Your favorite things make the best conversation starters.`][step]}</Txt></View>
+        <View ref={heading} tabIndex={-1} style={{ gap: 8 }}><Txt size={32} weight={`bold`} accessibilityRole={`header`} style={styles.title}>{[`Start with you.`, `Make it feel like you.`, `Give them a little more you.`][step]}</Txt><Txt color={colors.muted}>{[`Choose how you’d like to join, then try the app for free. This signup is saved only on this device for now.`, `A fresh photo or an avatar. Your first impression, your choice.`, `Your interests start conversations. Your feedback helps one solo developer build what matters to you.`][step]}</Txt></View>
         {step === 0 ? <View style={styles.fields}>
+          <View style={{ gap: 9 }}><Txt weight={`medium`}>I’d Like To Join As</Txt><Row style={{ flexWrap: `wrap`, gap: 8 }}>{SIGNUP_ORDER.map(option => <Chip key={option} label={`${SIGNUP_OPTIONS[option].name} · ${option === `beta` ? `Free` : `${SIGNUP_OPTIONS[option].price}/month Later`}`} selected={plan === option} onPress={() => setPlan(option)} />)}</Row><Txt size={12} color={colors.muted}>{plan === `founding` ? `Show interest in a proposed $1/month founding plan. You’ll start on Free; no card, charge, subscription, or automatic billing.` : `Join the free beta and help shape the first release. No card or payment needed.`}</Txt></View>
+          <View style={{ gap: 5 }}><Field label={`Email Or Phone Number`} placeholder={`you@example.com or +1 212 555 0123`} value={contact} autoCapitalize={`none`} autoCorrect={false} maxLength={254} returnKeyType={`next`} onChangeText={value => { setContact(value); clearError(`contact`); }} style={errors.contact ? { borderColor: colors.danger } : undefined} />{errors.contact ? <Txt size={12} color={colors.danger} accessibilityRole={`alert`}>{errors.contact}</Txt> : <Txt size={12} color={colors.muted}>Use an email or phone with country code. It stays off your profile. Nothing is sent to the developer yet.</Txt>}</View>
           <View style={{ gap: 5 }}><Field label={`First Name`} placeholder={`What should we call you?`} value={name} autoComplete={`given-name`} textContentType={`givenName`} autoCapitalize={`words`} maxLength={40} returnKeyType={`next`} onChangeText={value => { setName(value); clearError(`name`); }} style={errors.name ? { borderColor: colors.danger } : undefined} />{errors.name ? <Txt size={12} color={colors.danger} accessibilityRole={`alert`}>{errors.name}</Txt> : null}</View>
           <View style={{ gap: 5 }}><Field label={`Date Of Birth`} placeholder={`YYYY-MM-DD`} value={dob} autoComplete={`birthdate-full`} autoCorrect={false} maxLength={10} keyboardType={`number-pad`} onChangeText={value => { setDob(formatBirthDate(value)); clearError(`dob`); }} style={errors.dob ? { borderColor: colors.danger } : undefined} />{errors.dob ? <Txt size={12} color={colors.danger} accessibilityRole={`alert`}>{errors.dob}</Txt> : <Txt size={12} color={colors.muted}>Your birth date stays private. Only your age appears on your profile.</Txt>}</View>
           <View style={{ gap: 5 }}><Field label={`City`} placeholder={`Where are you based?`} value={city} autoComplete={`postal-address-locality`} textContentType={`addressCity`} autoCapitalize={`words`} maxLength={80} returnKeyType={`next`} onSubmitEditing={advance} onChangeText={value => { setCity(value); clearError(`city`); }} style={errors.city ? { borderColor: colors.danger } : undefined} />{errors.city ? <Txt size={12} color={colors.danger} accessibilityRole={`alert`}>{errors.city}</Txt> : null}</View>
         </View> : step === 1 ? <View style={{ gap: 10 }}><OnboardingPhotoPicker photo={photo} onBusyChange={setPhotoBusy} onChange={value => { setPhoto(value); clearError(`photo`); }} />{errors.photo ? <Txt size={12} color={colors.danger} accessibilityRole={`alert`}>{errors.photo}</Txt> : null}</View> : <View style={styles.fields}>
           <View style={{ gap: 6 }}><Field multiline numberOfLines={3} maxLength={600} label={`A Little About You (Optional)`} placeholder={`My ideal Sunday starts with…`} value={bio} onChangeText={setBio} style={{ minHeight: 106 }} /><Txt size={11} color={colors.muted} style={{ textAlign: `right` }}>{bio.length} / 600</Txt></View>
           <View style={{ gap: 12 }}><Row style={{ justifyContent: `space-between`, flexWrap: `wrap` }}><Txt weight={`medium`}>Your Interests (Optional)</Txt><Txt size={12} color={colors.muted}>{interests.length} / 12</Txt></Row><Row style={{ flexWrap: `wrap`, gap: 8 }}>{INTERESTS.map(interest => <Chip key={interest} label={interest} selected={interests.includes(interest)} disabled={!interests.includes(interest) && interests.length >= 12} onPress={() => setInterests(current => current.includes(interest) ? current.filter(value => value !== interest) : current.length < 12 ? [...current, interest] : current)} />)}</Row><Txt size={12} color={colors.muted}>Choose up to 12 things you love. You can change them later.</Txt></View>
+          <View style={{ gap: 6 }}><Field multiline numberOfLines={2} maxLength={signupFeedbackLimit} label={`Help Shape MatchXD (Optional)`} placeholder={`Features you love, dislike, or want in the first release…`} value={feedback} onChangeText={setFeedback} style={{ minHeight: 84 }} /><Txt size={11} color={colors.muted}>Private feedback, separate from your dating profile · {feedback.length} / {signupFeedbackLimit}</Txt></View>
           <View style={[styles.confirmation, { backgroundColor: colors.raised, borderColor: errors.agreed ? colors.danger : colors.border }]}><SwitchRow label={`I Am 18 Or Older`} description={`MatchXD is for adults. Please confirm your age to continue.`} value={agreed} onValueChange={value => { setAgreed(value); clearError(`agreed`); }} />{errors.agreed ? <Txt size={12} color={colors.danger} accessibilityRole={`alert`}>{errors.agreed}</Txt> : null}</View>
         </View>}
       </Animated.View>
       {error ? <Txt color={colors.danger} accessibilityRole={`alert`}>{error}</Txt> : null}
-      <View style={{ gap: 13 }}><Row style={{ gap: 10 }}>{step > 0 ? <Button label={`Back`} icon={`arrow-left`} variant={`secondary`} onPress={() => changeStep(step - 1)} disabled={blocked} /> : null}<Button label={busy ? `Saving Your Profile…` : step === 2 ? `Meet Your People` : `Continue`} icon={`arrow-right`} disabled={blocked} onPress={step === 2 ? finish : advance} style={{ flex: 1 }} /></Row><Txt size={12} color={colors.muted} style={{ textAlign: `center` }}>{step === 2 ? `Your preview profile stays on this device. Edit it any time.` : `Step ${step + 1} Of 3 · A Little About You Goes A Long Way`}</Txt></View>
+      <View style={{ gap: 13 }}><Row style={{ gap: 10 }}>{step > 0 ? <Button label={`Back`} icon={`arrow-left`} variant={`secondary`} onPress={() => changeStep(step - 1)} disabled={blocked} /> : null}<Button label={busy ? `Saving Your Signup…` : step === 2 ? `Join & Explore Free` : `Continue`} icon={`arrow-right`} disabled={blocked} onPress={step === 2 ? finish : advance} style={{ flex: 1 }} /></Row><Txt size={12} color={colors.muted} style={{ textAlign: `center` }}>{step === 2 ? `Thank you for being here. ${plan === `founding` ? `Founding interest · $1/month proposed · $0 today. ` : `Free beta · $0 today. `}Explore sample profiles now. Your signup, feedback, and activity stay on this device; clearing browser data removes them.` : `Step ${step + 1} Of 3 · Free To Explore From Day One`}</Txt></View>
       {step === 0 ? <View style={{ gap: 12, borderTopWidth: 1, paddingTop: 22, borderColor: colors.border }}><SocialSignInOptions compact /></View> : null}
     </View>
   </AuthLayout>;

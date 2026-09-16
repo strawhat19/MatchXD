@@ -1,0 +1,5 @@
+.mx-landing-tabs{display:flex;width:fit-content;gap:4px;padding:4px;margin:0 0 22px;border:1px solid #17191f26;border-radius:30px;background:#ffffff66}
+.mx-landing-tabs button{appearance:none;min-width:90px;min-height:44px;padding:10px 22px;border:0;border-radius:25px;background:transparent;color:#17191f;cursor:pointer;font:500 13px/1.5 Poppins_500Medium,Arial,sans-serif}
+.mx-landing-tabs button[aria-selected=true]{background:#17191f;color:#fff}
+.mx-landing-tabs button:focus-visible{outline:3px solid #a92341;outline-offset:3px}
+.mx-landing-panel:focus-visible{outline:3px solid #a92341;outline-offset:6px}

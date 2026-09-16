@@ -1,4 +1,5 @@
 import { PLANS } from '../../config/plans';
+import { SIGNUP_PREVIEW_NOTE } from '../../config/signupOptions';
 import { Icon } from '../../components/Icon';
 import { Link, router, Redirect } from 'expo-router';
 import { useApp } from '../../state/AppProvider';
@@ -9,6 +10,8 @@ import { useTheme } from '../../theme/ThemeProvider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { PhonePreview } from '../landing/PhonePreview';
 import { LandingHeader } from '../landing/LandingHeader';
+import { LandingTabs } from '../landing/LandingTabs';
+import type { LandingView } from '../landing/LandingTabs.types';
 import { Txt, Row, Button, Panel } from '../../components/ui';
 import { AppIcon, BrandMark } from '../../components/BrandMark';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -22,7 +25,12 @@ const initialOrbitScale = .74;
 const fullCircle = Math.PI * 2;
 const orbitRadiusRatio = 410 / 280;
 const orbitOuterRatio = Math.hypot(.5, orbitRadiusRatio + 1.04);
-const stories = [
+const betaStories = [
+  { icon: `heart`, title: `More Choice. Same Spark.`, description: `Match Group owns Tinder, Hinge, Match, OkCupid, and Plenty of Fish. MatchXD is independent: another choice in a market where familiar apps share an owner.` },
+  { icon: `message-circle`, title: `Less Paywall. More Possibility.`, description: `Ever felt more visible only after paying? Tinder sells Boosts and priority likes. Our goal: honest matching and useful premium features without premium pricing.` },
+  { icon: `shield`, title: `Your Voice. Our Next Step.`, description: `One solo developer, with plans to build this fully. First, your interest will help show whether it’s worth bringing to life. Join early and share what you want in the first release.` },
+] as const;
+const planStories = [
   { icon: `heart`, title: `A Spark That Feels Like You`, description: `A good photo is the beginning. Find common ground in the little things you love, then let a conversation take it from there.` },
   { icon: `message-circle`, title: `Less Guesswork. More Hello.`, description: `Discover, your MXO wingmate, and your conversations live together. A little help finding your people, with room to be yourself.` },
   { icon: `shield`, title: `Your Pace. Your Choice.`, description: `Choose what you share. Keep public links opt-in, set your preferences, and block or report a profile whenever you need to.` },
@@ -82,7 +90,9 @@ export const LandingScreen = () => {
   const [circleVisible, setCircleVisible] = useState(false);
   const [centerIconVisible, setCenterIconVisible] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [view, setView] = useState<LandingView>(`beta`);
   const [headingHeight, setHeadingHeight] = useState(350);
+  const stories = view === `beta` ? betaStories : planStories;
   const phase = useSharedValue(0);
   const iconPhase = useSharedValue(0);
   const scroll = useSharedValue(0);
@@ -169,7 +179,7 @@ export const LandingScreen = () => {
               </> : <EntryReveal delay={360}><Txt size={titleSize} weight="bold" color="#FFFFFF" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={.65} style={[titleStyle, { textAlign: `center` }]}>The <Txt size={titleSize} weight="bold" color={ink} style={titleStyle}>cost</Txt> of love<Txt size={titleSize} weight="bold" color={ink} style={titleStyle}>.</Txt></Txt></EntryReveal>}
             </View>
             <EntryReveal delay={mobile ? 720 : 540}><Txt size={16} color={ink} style={styles.heroDescription}>Leaving you more time to</Txt></EntryReveal>
-            <SparkButton active={introVisible && !privacyOpen} onPress={() => router.push(`/sign-in`)} style={styles.heroButton} />
+            <SparkButton active={introVisible && !privacyOpen} onPress={() => router.push({ pathname: `/onboarding`, params: { intent: `beta` } })} style={styles.heroButton} />
           </Animated.View>
           <Animated.View style={[styles.phoneStage, { top: stageCenter }, stickyStage]}>
             <Animated.View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.centerIcon, { width: iconSize, height: iconSize, marginLeft: -iconSize / 2, marginTop: -iconSize / 2 }, centerIconStyle]}><AppIcon size={iconSize} /></Animated.View>
@@ -179,27 +189,28 @@ export const LandingScreen = () => {
         </View>
         <View style={styles.storySection}>
           <WordCircle active={circleVisible && !privacyOpen} />
-          <Txt size={11} weight="semibold" color={ink} style={styles.eyebrow}>A LITTLE MORE YOU</Txt>
-          <Txt size={Math.min(48, width * .09)} weight="bold" color={ink} style={styles.storyHeading}>Good things start{`\n`}with a hello.</Txt>
+          <Txt size={11} weight="semibold" color={ink} style={styles.eyebrow}>{view === `beta` ? `INDEPENDENT. AFFORDABLE. BUILT WITH YOU.` : `A LITTLE MORE YOU`}</Txt>
+          <Txt size={Math.min(48, width * .09)} weight="bold" color={ink} style={styles.storyHeading}>{view === `beta` ? `Good chemistry.\nBetter features.` : `Good things start\nwith a hello.`}</Txt>
+          <LandingTabs value={view} onChange={setView} scope="features" />
           <View style={styles.storyGrid}>{stories.map(story => <View key={story.title} style={[styles.storyCard, { minWidth: width > 760 ? 230 : undefined }]}><View style={styles.storyIcon}><Icon name={story.icon} color={ink} size={24} /></View><Txt size={20} weight="semibold" color={ink}>{story.title}</Txt><Txt size={14} color={ink} style={{ lineHeight: 24 }}>{story.description}</Txt></View>)}</View>
-          <View style={styles.invitation}><Txt size={34} weight="bold" color={ink} style={{ textAlign: `center`, letterSpacing: -1.4 }}>Your next hello{`\n`}could be a good one.</Txt><Txt size={14} color={ink} style={{ textAlign: `center` }}>Start with {PLANS.free.daily} free XOs every day.</Txt><Button label="Find Your People" icon="arrow-right" onPress={() => router.push(`/sign-in`)} style={styles.heroButton} /></View>
+          <View style={styles.invitation}><Txt size={34} weight="bold" color={ink} style={{ textAlign: `center`, letterSpacing: -1.4 }}>Don’t break your heart,{`\n`}or your wallet.</Txt><Txt size={14} color={ink} style={{ textAlign: `center` }}>Start with {PLANS.free.daily} free XOs daily in the preview. Free beta or $1/month founding interest. No charge today.</Txt><Button label="Join The Free Beta" icon="arrow-right" onPress={() => router.push({ pathname: `/onboarding`, params: { intent: `beta` } })} style={styles.heroButton} /></View>
         </View>
       </LinearGradient>
-      <PricingComparison instructions={false} />
+      <PricingComparison variant={view} instructions={false}><LandingTabs value={view} onChange={setView} scope="pricing" /></PricingComparison>
       <View style={[styles.footer, { backgroundColor: colors.surface, paddingBottom: Math.max(32, insets.bottom + 20) }]}>
         <View style={styles.footerInner}>
           <BrandMark size={29} />
-          <Txt color={colors.muted} style={{ maxWidth: 430 }}>Real people. Brighter connections.{`\n`}Your people. Your pace.</Txt>
+          <Txt color={colors.muted} style={{ maxWidth: 430 }}>Thank you for being here early.{`\n`}Your interest helps make this possible.</Txt>
           <Row style={{ flexWrap: `wrap`, gap: 10 }}><Button label="How It Works" variant="ghost" onPress={() => goTo(heroHeight)} /><Button label="Privacy & Safety" variant="ghost" onPress={() => setPrivacyOpen(true)} /><Button label="Sign In" variant="ghost" onPress={() => router.push(`/sign-in`)} /><Button label="Back To Top" icon="arrow-up" variant="ghost" onPress={() => goTo(0)} /></Row>
           <View style={{ height: 1, backgroundColor: colors.border, alignSelf: `stretch` }} />
           <Txt size={12} color={colors.muted}>For adults 18+ · Two paths. One connection.</Txt>
-          <Txt size={11} color={colors.muted}>App Store & Google Play · Coming Later</Txt>
+          <Txt size={11} color={colors.muted}>{SIGNUP_PREVIEW_NOTE}</Txt>
           <Link href="https://piratechs.com" asChild><Pressable accessibilityRole={`link`} style={{ paddingVertical: 8 }}><Row style={{ gap: 4 }}><Txt size={12} color={colors.accentText}>Designed by Piratechs</Txt><Icon name={`arrow-up-right`} size={14} color={colors.accentText} /></Row></Pressable></Link>
         </View>
       </View>
     </Animated.ScrollView>
     <Modal visible={privacyOpen} transparent animationType={reducedMotion ? `none` : `fade`} onRequestClose={() => setPrivacyOpen(false)}>
-      <View style={styles.modalBackdrop}><ScrollView style={{ width: `100%` }} contentContainerStyle={{ flexGrow: 1, paddingVertical: 16, alignItems: `center`, justifyContent: `center` }}><Panel style={{ width: `100%`, maxWidth: 490, gap: 17 }}><Icon name="shield" size={28} color={colors.accentText} /><Txt size={24} weight="semibold">A Little Space For Your Privacy</Txt><Txt color={colors.muted}>You choose the details and public links you share. Profiler visibility is opt-in. Blocking hides profiles from each other across the member experience.</Txt><Txt color={colors.muted}>Review your preferences and visibility controls in Settings. Blocking and reporting never cost XOs.</Txt><Txt size={12} color={colors.muted}>Share only what feels right for you. Keep sensitive contact details out of your public profile.</Txt><Button label="Got It" onPress={() => setPrivacyOpen(false)} /></Panel></ScrollView></View>
+      <View style={styles.modalBackdrop}><ScrollView style={{ width: `100%` }} contentContainerStyle={{ flexGrow: 1, paddingVertical: 16, alignItems: `center`, justifyContent: `center` }}><Panel style={{ width: `100%`, maxWidth: 490, gap: 17 }}><Icon name="shield" size={28} color={colors.accentText} /><Txt size={24} weight="semibold">A Little Space For Your Privacy</Txt><Txt color={colors.muted}>This is an early local preview. Your signup, contact details, and feedback stay on this device. Nothing is submitted to a real database.</Txt><Txt color={colors.muted}>Try the free app with sample profiles. No real messages are sent. You can clear your local account in Settings.</Txt><Txt size={12} color={colors.muted}>Live accounts, real matching, and moderation still need to be built. Keep contact details out of your public bio. Thank you for helping shape what comes next.</Txt><Button label="Got It" onPress={() => setPrivacyOpen(false)} /></Panel></ScrollView></View>
     </Modal>
   </View>;
 };
