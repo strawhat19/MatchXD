@@ -1,59 +1,58 @@
 # AI Instructions
 
-1. When making code changes,
-dont verify or test or build the code, 
-just make minimal code changes and let the user look at the code diff and verify themselves before they commit.
+Apply these preferences across projects and workspaces for the strawhat19 GitHub/Codex setup, within the requested task's scope.
 
-2. Always try your best to structure code and imports like this:
+1. Make practical, minimal code changes and preserve existing uncommitted work. Do not verify, test, build, or run UI checks unless I ask; let me review the diff and verify before committing. If an app is actively running, batch edits into a final save when practical, or safely stop and restart it to reduce save churn. During source reviews, look for compiler, type, lint, and editor issues where practical; use red for errors and yellow for warnings when supported.
 
-code line 1
-code line 2 - A
-code line 3 - ABC
+2. Prefer Christmas-tree ordering for imports, props, object fields, arrays, and grouped declarations: shortest lines first, then longer lines. Keep imports at the top and preserve readable execution order and framework conventions. Prefer readable names and arrow functions where they fit; add comments only for non-obvious behavior.
 
-^ should be like a christmas tree where shortest line length is at the top going down to longest line length.
+3. Prefer SCSS over CSS where supported. Use the platform's supported style objects for native views.
 
-^ try your best to keep this structure its ok if it differs sometimes.
+4. Give HTML, JSX, and TSX elements descriptive classes and IDs. For repeated elements, include the record ID or index in the ID so I can inspect and reference each element. Use nativeID or the app's equivalent helper for native elements.
 
-3. try to use SCSS over CSS whenever possible
+5. Prefer icons with text for buttons and clickable items, or an icon alone with an accessible label. Keep navigation icons consistent. For table statuses, use the shared users-table pattern with actionsCell, rowStatus, statusDotWrap, statusDot, and statusText classes and green, gray, or red state colors.
 
-4. in html or tsx or jsx, all elements should have a descriptive className and ID, especially if its rendered in a for loop or map. the ID can be like the Class but with the id or index of the element.
-User should be able to inspect any element and see its class and then give that back to AI as reference.
+6. Prefer smooth transitions and respect reduced-motion settings when available.
 
-5. when making buttons or clickable items, try your best to put icon text together. or icon only.
+7. Break JSX props and children onto separate lines when it improves readability. Keep simple code compact, for example:
 
-6. when making transitions, always prefer smooth transitions over flat static transitions.
-
-7. prefer to break things out to make them more readable, like instead of:
-
-<Text style={[styles.tabLabel, { color: timelineMode === value ? palette.blue : palette.muted }]} {...elementProps(`analytics-timeline-tab-label`, `${scope}-${value}`)}>{label}</Text>
-
-or 
-
-<Label className={`intro-eyebrow`} style={styles.eyebrow}>{`A LITTLE CLARITY GOES A LONG WAY`}</Label>
-
-or
-
-<Label className={`reset-confirmation-title`} style={styles.resetTitle}>{`Start fresh?`}</Label>
-
-prefer like this
-
-<Text 
-    {...elementProps(`analytics-timeline-tab-label`, `${scope}-${value}`)} 
-    style={[styles.tabLabel, { color: timelineMode === value ? palette.blue : palette.muted }]}
+```tsx
+<Text
+  {...elementProps(`action-label`, item.id)}
+  style={[styles.label, { color: active ? palette.blue : palette.muted }]}
 >
-    {label}
+  {label}
 </Text>
+```
 
-or this 
+8. In JavaScript, TypeScript, JSX, and TSX, prefer backticks, then single quotes, with double quotes as a last resort. Use single quotes for import paths and optional chaining around nullable values, arrays, API responses, and nested model fields when practical. Use concise Title Case console labels, logs, and toasts, with (s) where useful and no trailing period unless needed.
 
-<Label className={`intro-eyebrow`} style={styles.eyebrow}>
-    {`A LITTLE CLARITY GOES A LONG WAY`}
-</Label>
+9. For new apps, prefer Expo, React Native, TypeScript, and Sass for web and mobile unless I choose another framework. Follow the existing framework when editing an app. Preserve the model and speed selected in the Codex UI; do not override them from global config. If none is explicitly selected, prefer gpt-5.4-mini with medium reasoning. Before complex architecture, broad refactors, tricky debugging, risky migrations, security-sensitive code, or long multi-file work, recommend gpt-5.5 fast when its capability is worth the cost.
 
-or this
+10. Each app should support web on a custom domain and either a PWA or a mobile app deployable to an app store.
 
-<Label className={`reset-confirmation-title`} style={styles.resetTitle}>
-    {`Start fresh?`}
-</Label>
+11. Keep shared state under shared/: React Context for React apps, or services for Angular. Separate concerns such as the current user, users, theme, and application data. Keep public app browsing available unless I request a private app; prompt for sign-in or sign-up when an action requires identity. Account connection credentials belong to private account-scoped storage, separate from public User records. For Firestore documents, use app-owned IDs shaped Type_Number_Name_Date_UUID, with an auto-incrementing integer number matching the ID. Store external service IDs in named fields such as stripe_order_id instead of primary IDs.
 
-8. in javascript or typescript or tsx or jsx, always use backticks whenever possible, if not then use single quotes, and double quotes as a last resort.
+12. Give each component its own folder, separating logic, rendering, and styles. Share behavior across web and native views where practical.
+
+13. Headers have a component variable named sticky, defaulting to true. Keep the header and attached top bars sticky together. On scroll, smoothly apply a semi-transparent surface and blur; place backdrop-filter after -webkit-backdrop-filter. Measure the shared header/safe-area height for attached account layouts.
+
+14. Every App should have a smooth scroll to top button that fades in and out when the user scrolls past the hero and matches the design of the app, preferably this scroll to top button should float in the bottom right corner of the app
+
+15. Footers must include copyright with the current year, and a link to https://piratechs.com/, the link to Piratechs should preferably be in the right or center of the footer, and towards the bottom.
+
+16. Before publishing a completed landing page, include About, Terms, Contact, and Privacy Policy pages. Menu links should navigate to internal pages instead of section anchors; include common aliases such as about-us to about and contact-us to contact.
+
+17. Before implementation, read applicable guidance in this order: ai/skills/structure/structure.md, ai/skills/database/database.md, ai/skills/api/api.md, ai/skills/authentication/authentication.md for authentication, ai/skills/social/social.md for profiles/privacy/social features, then ai/skills/routes/routes.md. For Profile, Admin, dashboards, roles, forms, notifications or reporting, read [Admin](ai/skills/admin/SKILL.md) and its applicable [Firestore](ai/skills/admin/references/firestore.md), [workflow](ai/skills/admin/references/workflows.md), or [analytics](ai/skills/admin/references/analytics.md) contract. Read [layout](ai/skills/admin/layout.md) for account shells, tables, navigation, charts and identity icons. Read only what the task needs and preserve the existing architecture.
+
+18. For logo concepts, visual identity design rounds, or logo mockups, read [the logo and mockup skill](ai/skills/design/SKILL.md) and its linked guide before creating assets.
+
+19. For new full applications, default to Firebase Authentication with Google and email sign-in/sign-up, realtime Cloud Firestore, and themed Profile/Admin sidebars with animated dashboards unless I choose another stack or a local demo. Use explicit Owner/Admin/Developer/Subscriber capabilities, trusted role assignment, restrictive rules, and server-verified privileged endpoints. Collect Vercel Analytics in the web shell and bring available traffic/observability reports into the custom dashboard through server-only provider access. Show actual missing configuration, plan limits, and unavailable metrics. Keep ai/ and this AGENTS.md portable; place project-specific cloud IDs, credentials, schemas, and setup notes outside ai/. Copying instructions does not create or connect cloud resources.
+
+20. Use the same shared account-shell geometry and menu behavior for Profile, Dashboard, Admin, analytics, and charts as [the Admin layout reference](ai/skills/admin/layout.md): full-width canvas, flush-left full-height desktop sidebar, persisted expand/collapse, expandable submenus, bottom Profile/identity controls, and matching spacing, sizing, breakpoints, and reporting controls. Retain the app's existing colors, fonts, and relevant feature names. Translate the same proportions and behavior to native views; measure the actual header and safe-area height instead of positioning content beneath an unrelated fixed offset. Follow a different layout only when I request it.
+
+21. When I request the complete reusable app system or starter, read [the App System skill](ai/skills/app-system/SKILL.md) after the applicable guides in rule 17 and implement every module in [its feature map](ai/skills/app-system/system.md) through real frontend, services, persistence, rules/indexes, and permitted actions: public pages, accounts/profile/admin, dashboards/reports/charts/icons, notifications, saved contact submissions, participant-private realtime chat, published plans/pricing, and a sourced blog. Use [the one adoption prompt](ai/skills/app-system/system.md#one-adoption-prompt) after copying ai/ and AGENTS.md into another project. Preserve narrower existing access policies and keep pricing publication separate from payments/entitlements. Report source completion and actual external setup separately; a focused change does not authorize scaffolding the whole core.
+
+22. For adoption into a new project, follow [the connection matrix](ai/adoption.md) and complete the requested real service, model, subscription, permitted action, rules/index and hosted-server paths. Use private account-scoped notification read state for the connected starter, confirmed database form saves, explicit reviewer/recipient policies, atomic record allocation, and retry-safe intake. Public notification publication, individual read state and optional email/push delivery are separate. Keep existing reference gaps and local modes accurately described; a configured SDK, local mock, static dashboard or browser preference is not proof of a connected module.
+
+23. Keep this AGENTS.md and the complete ai/ pack, including ai/skills/ and licensed analytics assets, generic and identical wherever synchronized. Do not create a divergent root skills/ copy. Put app names, actual schemas/routes/limits, environment values, cloud IDs, bootstrap identities, migration/setup history and connection evidence in each project's code/configuration/docs outside ai/. Report source completion, cloud connectivity and validation separately; never claim deployed rules, enabled providers or live analytics from instructions alone.

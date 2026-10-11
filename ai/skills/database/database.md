@@ -1,0 +1,23 @@
+1. Use connected Firebase Firestore for new full applications and requested production account/admin systems unless another backend is chosen. Keep local browser/device storage as an explicit demo or existing app mode. Preserve a single shared useLocalStorage switch where it exists and report the actual source. Missing configuration or backend failure must not silently become local data or successful authentication; show a connection-needed or error state. Session-only data is not persisted.
+
+2. Keep typed models under shared/models, shared enums under types/types.ts, and storage helpers under shared/common. Use one storage adapter across browser and native targets, with framework-specific implementations only where required.
+
+3. Users, notifications, visits, and other model collections may start empty and fill through user actions. Keep optional sample data in a separate module with an explicit setting; do not silently repopulate cleared collections or replace saved data with samples.
+
+4. App-owned records use an auto-incrementing integer number and an ID shaped Type_Number_Name_Date_UUID. The number must match the number embedded in the ID. Keep IDs and numbers stable during edits and imports; store external service IDs in clearly named fields rather than using them as primary IDs.
+
+5. Generate IDs through the shared helper instead of duplicating formats in feature code. Allocate numbers from a persistent counter or an atomic backend operation so concurrent writes cannot create duplicates.
+
+6. Read and write collections through the internal API or service layer. Use the shared common/collection factory when repeated typed CRUD benefits from a common implementation with per-account storage and monotonic numbers. Components should not parse storage, generate record IDs, or implement separate caches. Keep persisted state and React Context or framework services synchronized after mutations.
+
+7. Validate storage shape on load, distinguish missing data from unreadable data, and surface storage failures. Version serialized data when its shape changes and preserve compatible existing records during migrations. Do not overwrite malformed saved data with an empty collection without explicit recovery intent.
+
+8. Store local authentication and account connection credentials separately from public User records in private account-scoped storage. Profile visibility cannot expose them. Apply [authentication guidance](../authentication/authentication.md) when changing users or sessions, [social guidance](../social/social.md) for profile and content audiences, and [API guidance](../api/api.md) for model operations and loading behavior.
+
+9. Data.toRecord() returns plain JSON-compatible fields and omits undefined object fields; persist records rather than class methods or prototypes. A Firestore adapter uses the same app-owned id as the document key, preserves its matching number and account references, and normalizes Firestore timestamps at the boundary. Keep external service IDs in named fields. Preserve serialized records and the separation of public profiles and private accounts when adopting a connected adapter.
+
+10. Read [Admin guidance](../admin/admin.md) for Firebase initialization, atomic counters/account mappings, bounded realtime listeners, private aggregates, rules/indexes, and server-enforced roles. Unsubscribe and clear account state when session/permissions change. Keep production credentials server-side and report denied, missing, cached, and unavailable data accurately.
+
+11. A requested full app core follows [App System](../app-system/SKILL.md). For its additional models, read [chat](../app-system/references/chats.md) for participant-constrained threads/messages and read state, [plans](../app-system/references/plans.md) for immutable catalog identities/active public projections, and [blog](../app-system/references/blog.md) for drafts/publication/slugs/references. Keep matching bounded listeners and indexes, protect identity/ownership fields, and use explicit compatible migrations for existing data. Catalog prices do not mutate account entitlements.
+
+12. Use [the detailed Firestore contract](../admin/references/firestore.md) for schema/query/rule mapping, atomic counter/mapping invariants, account hydration, shared/lazy listener cleanup, metadata/error handling, cursor/lookahead pages, index selection and cost/rollout limits. Cloud Firestore realtime listeners and Firebase Realtime Database are distinct products. Apply only the configured database's SDK/rules; missing configuration does not authorize automatic local fallback.
