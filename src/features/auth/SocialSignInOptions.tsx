@@ -21,6 +21,7 @@ export const SocialSignInOptions = ({ compact = false }: { compact?: boolean }) 
         {!compact && provider.name === `Google` ? <View style={[styles.badge, { backgroundColor: colors.raised }]}><Txt size={10} color={colors.muted}>Soon</Txt></View> : null}
       </Pressable>)}
     </View>
+    <Pressable disabled accessibilityRole={`button`} accessibilityState={{ disabled: true }} accessibilityLabel={`Email and password sign-in requires setup`} style={[styles.provider, { borderColor: colors.border, backgroundColor: colors.surface }]}><Icon name={`lock`} size={18} /><Txt>Email & Password · Not Connected</Txt></Pressable>
     <Row style={{ gap: 7, alignItems: `flex-start` }}><Icon name={`info`} size={14} color={colors.muted} /><Txt size={12} color={colors.muted} style={{ flex: 1 }}>Google, Apple, Facebook, and phone sign-in are coming soon.</Txt></Row>
   </View>;
 };

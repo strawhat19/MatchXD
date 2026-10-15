@@ -199,6 +199,7 @@ export const LandingScreen = () => {
       <PricingComparison variant={view} instructions={false}><LandingTabs value={view} onChange={setView} scope="pricing" /></PricingComparison>
       <View style={[styles.footer, { backgroundColor: colors.surface, paddingBottom: Math.max(32, insets.bottom + 20) }]}>
         <View style={styles.footerInner}>
+          <Row style={{ flexWrap: `wrap` }}>{[`about`, `contact`, `privacy`, `terms`, `safety`].map(page => <Link key={page} href={`/${page}` as never} style={{ color: colors.accentText, padding: 8 }}>{page.charAt(0).toUpperCase() + page.slice(1)}</Link>)}</Row>
           <BrandMark size={29} />
           <Txt color={colors.muted} style={{ maxWidth: 430 }}>Thank you for being here early.{`\n`}Your interest helps make this possible.</Txt>
           <Row style={{ flexWrap: `wrap`, gap: 10 }}><Button label="How It Works" variant="ghost" onPress={() => goTo(heroHeight)} /><Button label="Privacy & Safety" variant="ghost" onPress={() => setPrivacyOpen(true)} /><Button label="Sign In" variant="ghost" onPress={() => router.push(`/sign-in`)} /><Button label="Back To Top" icon="arrow-up" variant="ghost" onPress={() => goTo(0)} /></Row>

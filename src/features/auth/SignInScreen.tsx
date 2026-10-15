@@ -35,6 +35,8 @@ export const SignInScreen = () => {
         <Txt size={15} color={colors.muted}>{returning ? `Thank you for helping shape MatchXD. Pick up your free preview where you left off.` : `An independent dating app, built by one developer. Join the free beta or express interest in founding access at $1/month later.`}</Txt>
       </View>
       <SocialSignInOptions />
+      <Button label={`Create a local preview profile`} variant={`ghost`} onPress={() => router.push(`/sign-up`)} />
+      <Button label={`Password reset information`} variant={`ghost`} onPress={() => router.push(`/forgot-password` as never)} />
       <Row style={{ gap: 14 }}><View style={[styles.line, { backgroundColor: colors.border }]} /><Txt size={11} weight={`medium`} color={colors.muted}>{returning ? `CONTINUE YOUR FREE PREVIEW` : `JOIN & TRY THE FREE PREVIEW`}</Txt><View style={[styles.line, { backgroundColor: colors.border }]} /></Row>
       <View style={[styles.preview, { borderColor: colors.border, backgroundColor: colors.raised }]}>
         <Row><View style={[styles.previewIcon, { backgroundColor: colors.pale }]}><Icon name={returning ? `user-check` : `heart`} size={20} color={colors.accentText} /></View><View style={{ flex: 1, gap: 3 }}><Txt weight={`semibold`}>{returning ? `Continue As ${state.user.name}` : `Make Yourself At Home`}</Txt><Txt size={12} color={colors.muted}>{returning ? `Your saved profile is ready on this device.` : `Create a profile and explore MatchXD for free.`}</Txt></View></Row>

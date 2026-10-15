@@ -1,3 +1,4 @@
+import { usePathname } from 'expo-router';
 import type { ReactNode } from 'react';
 import { decorateXoText } from './XoToken';
 import { Icon, type IconName } from './Icon';
@@ -44,9 +45,11 @@ export const Chip = ({ label, selected, disabled, onPress }: { label: string; se
 };
 
 export const Page = ({ title, subtitle, action, children }: { title: string; subtitle?: string; action?: ReactNode; children: ReactNode }) => {
+  const path = usePathname();
+  const account = [`/profile`, `/settings`, `/dashboard`, `/analytics`, `/connections`].some(prefix => path.startsWith(prefix));
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
-  return <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1, paddingBottom: 36 }}><View style={{ width: `100%`, maxWidth: 1130, alignSelf: `center`, padding: width < 700 ? 20 : 34, gap: 25 }}>
+  return <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1, paddingBottom: 36 }}><View style={{ width: `100%`, maxWidth: account ? undefined : 1130, alignSelf: `center`, padding: width < 700 ? 20 : 34, gap: 25 }}>
     <View style={{ gap: 18, flexDirection: width > 700 ? `row` : `column`, justifyContent: `space-between`, alignItems: width > 700 ? `center` : `stretch` }}><View style={{ flexShrink: 1 }}><Txt size={width < 700 ? 28 : 34} weight="bold" style={{ letterSpacing: -1 }}>{title}</Txt>{subtitle ? <Txt color={colors.muted} style={{ marginTop: 5 }}>{subtitle}</Txt> : null}</View>{action}</View>
     {children}
   </View></ScrollView>;

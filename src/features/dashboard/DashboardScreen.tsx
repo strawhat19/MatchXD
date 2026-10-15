@@ -46,7 +46,7 @@ export const DashboardScreen = () => {
       else return result.message;
     }} />
   </Page>;
-  return <Page title={`The Bigger Picture`} subtitle={`Manage profiles, reports, and activity.`} action={<Button label={`Create Profile`} icon={`plus`} onPress={startCreate} />}>
+  return <Page title={`The Bigger Picture`} subtitle={`Device-only owner layout preview. Profiles, reports, matches and messages below are demo data, not real users.`} action={<Button label={`Create Profile`} icon={`plus`} onPress={startCreate} />}>
     <View style={styles.stack}>
       <View style={styles.stats}>{stats.map(stat => <Panel key={stat.label} style={styles.stat}><Icon name={stat.icon} size={20} color={colors.accent} /><Txt size={32} weight={`bold`}>{stat.value}</Txt><Txt size={12} color={colors.muted}>{stat.label}</Txt></Panel>)}</View>
       <Panel style={styles.section}>

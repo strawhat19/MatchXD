@@ -23,6 +23,7 @@ export const SettingsScreen = () => {
   };
   return <Page title={`Make Yourself At Home`} subtitle={`Your experience. Your privacy. Your choice.`}>
     <View style={styles.stack}>
+      <Panel><Txt weight={`semibold`}>Preview information</Txt><Txt color={colors.muted}>All profile visibility, blocks and messages here apply only to this device's fictional demo, not a live community.</Txt><Row style={styles.wrap}>{[`about`, `privacy`, `terms`, `contact`, `safety`].map(page => <Button key={page} label={page.charAt(0).toUpperCase() + page.slice(1)} variant={`ghost`} onPress={() => router.push(`/${page}` as never)} />)}</Row></Panel>
       <Panel style={styles.section}>
         <Row style={styles.heading}><Icon name={`sun`} color={colors.accent} size={22} /><Txt size={21} weight={`semibold`}>Appearance</Txt></Row>
         <Txt color={colors.muted}>Coral by day. A little After Hours by night.</Txt>

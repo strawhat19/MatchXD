@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+# Private preview pages emit noindex. Robots directives are not access control.
